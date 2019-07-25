@@ -18,8 +18,7 @@ namespace Streetview_Journey_3
         public static void AllPanoramas((double Lat, double Lon)[] locData, string folderPath, ImageFormat format, int width, int height)
         {
             string[] panoIDs = new string[locData.Length];
-            Parallel.For(0, locData.Length, i =>
-            {
+            Parallel.For(0, locData.Length, i => {
                 panoIDs[i] = Web.GetGooglePanoID(locData[i]);
             });
             panoIDs = Remove.Nulls(panoIDs);
@@ -51,8 +50,7 @@ namespace Streetview_Journey_3
         public static void AllPanoramas((double Lat, double Lon)[] locData, string folderPath, ImageFormat format)
         {
             string[] panoIDs = new string[locData.Length];
-            Parallel.For(0, locData.Length, i =>
-            {
+            Parallel.For(0, locData.Length, i => {
                 panoIDs[i] = Web.GetGooglePanoID(locData[i]);
             });
             panoIDs = Remove.Nulls(panoIDs);
