@@ -60,7 +60,7 @@ namespace Streetview_Journey_3
         }
 
         public static string geckoDriverPath = AppDomain.CurrentDomain.BaseDirectory + "geckodriver.exe";
-        public static void AllScreenshots((double Lat, double Lon)[] locData, double[] bearings, int resX, int resY, double pitch, double wait, string folderPath, ScreenshotImageFormat format = ScreenshotImageFormat.Jpeg)
+        public static string[] AllScreenshots((double Lat, double Lon)[] locData, double[] bearings, int resX, int resY, double pitch, double wait, string folderPath, ScreenshotImageFormat format = ScreenshotImageFormat.Jpeg)
         {
             FirefoxDriverService service = FirefoxDriverService.CreateDefaultService(geckoDriverPath.Replace(@"\geckodriver.exe", ""), "geckodriver.exe");
             var driver = new FirefoxDriver(service);
@@ -68,13 +68,19 @@ namespace Streetview_Journey_3
                 resX + 12,
                 resY + 80);
 
+            string[] placesNames = new string[locData.Length];
             for (int i = 0; i < locData.Length; i++)
             {
                 driver.Navigate().GoToUrl(Get.StreetviewURL(locData[i], bearings[i], pitch));
                 Thread.Sleep(Convert.ToInt32(wait * 1000));
+                placesNames[i] = driver.Title.Replace("Google Maps", "");
+                if (placesNames[i].EndsWith(" - "))
+                    placesNames[i] = placesNames[i].Replace(" - ", "");
                 driver.GetScreenshot().SaveAsFile(folderPath + @"\image" + i + "." + format.ToString().ToLower(), format);
             }
             driver.Quit();
+
+            return placesNames;
         }
 
         public static void AllImages((double Lat, double Lon)[] locData, double[] bearings, double pitch, int resX, int resY, int fov, string folder)
