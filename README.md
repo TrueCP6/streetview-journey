@@ -1,6 +1,12 @@
 # streetview-journey
 For now the only way to use it is to clone, open the project in vs and use it how you like. I'm too lazy to make it into a library for now.
 
+### Dependencies
+Requires [geckodriver](https://github.com/mozilla/geckodriver/releases) and its path to be set as `Download.geckoDriverPath`. Requires an api and signing key (signing secret) for streetview static api. These must be set as `Web.apiKey` and `Web.signingKey`. Requires [Firefox](https://ninite.com/firefox/) to be installed in the default path.
+
+### File types
+GPX files can be downloaded from [here](https://mapstogpx.com/) using a google maps route link. This tool uses its own basic file type called .svj for storing of point data.
+
 ### Things you can do
 - `Web.GetGooglePanoID` Gets the ID of a panorama uploaded by google from a point. Returns `null` if one if not found.
 - `Web.GetExact` Gets the point of the nearest panorama from a pano ID or point. Returns `(0, 0)` if none is found.
