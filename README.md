@@ -2,7 +2,7 @@
 For now the only way to use it is to clone, open the project in vs and use it how you like. I'm too lazy to make it into a library for now.
 
 ### Things that can be done with it
-<iframe width="560" height="315" src="https://www.youtube.com/embed/xmBP28-3C0Y" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+[Playlist of videos](https://www.youtube.com/playlist?list=PL2gaTlKIJh0f7RqPazkAStxvLdSbFrrhy)
 
 ### Dependencies
 Requires [geckodriver](https://github.com/mozilla/geckodriver/releases) and its path to be set as `Download.geckoDriverPath`. Requires an api and signing key (signing secret) for streetview static api. These must be set as `Web.apiKey` and `Web.signingKey`. Requires [Firefox](https://ninite.com/firefox/) to be installed in the default path.
