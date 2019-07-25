@@ -46,7 +46,7 @@ GPX files can be downloaded from [here](https://mapstogpx.com/) using a google m
 - `Export.ToSVJ` Saves the given location data array as an svj file.
 - `Download.AllPanoramas` Downloads a 360 equirectangular image to a folder for every point in a sequence.
 - `Download.Panorama` Returns a bitmap in equirectangular format. Uses 400mb of memory per image so arrays are a bad idea. Will throw an exception if given a panorama ID uploaded by a user starting with `CAosSLEF`
-- `Download.AllScreenshots` Opens a window of Firefox and takes and saves a screenshot for every point. Requires `Download.geckoDriverPath` to be set.
+- `Download.AllScreenshots` Opens a window of Firefox and takes and saves a screenshot for every point. Requires `Download.geckoDriverPath` to be set. Returns a string array of short road/place names the same length as the input location data array. Can still be used like a void method.
 - `Download.AllImages` Uses the static streetview api to download an image for every point.
 - `Calculate.Offset` Calculates the offset angle needed to offset a panorama using bearing.
 - `Calculate.ZoomToFOV` Converts streetview zoom to fov.
