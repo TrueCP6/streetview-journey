@@ -1,5 +1,5 @@
 # streetview-journey
-For now the only way to use it is to clone, open the project in vs and use it how you like. I'm too lazy to make it into a library for now. If you have any suggestions or ides make an issue or pull request.
+For now the only way to use it is to clone, open the project in vs and use it how you like. I'm too lazy to make it into a library for now. If you have any suggestions or ideas make an issue or pull request.
 
 ### Things that can be done with it
 [Playlist of videos](https://www.youtube.com/playlist?list=PL2gaTlKIJh0f7RqPazkAStxvLdSbFrrhy)
