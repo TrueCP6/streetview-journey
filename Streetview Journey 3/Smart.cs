@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing.Imaging;
 
 namespace Streetview_Journey_3
 {
@@ -31,6 +33,14 @@ namespace Streetview_Journey_3
             if (keepDupes == false)
                 locData = Remove.Dupes(locData);
             Export.ToSVJ(locData, path.Replace(".gpx", ".svj"));
+        }
+
+        public static Bitmap RandomImageFromRandomPanorama(int resX, int resY)
+        {
+            Random rng = new Random();
+            var image = Bearing.OffsetPanorama(Download.Panorama(Get.RandomGooglePanoID()), rng.Next(0, 360));
+            image = Modify.CropImage(image, new Rectangle(image.Width / 2 - resX / 2, image.Height / 2 - resY / 2, resX, resY));
+            return image;
         }
     }
 }

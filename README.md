@@ -62,3 +62,4 @@ GPX files can be downloaded from [here](https://mapstogpx.com/) using a google m
 - `Bearing.Trackpoint` Returns a bearings array where the bearing tracks a specific point.
 - `Bearing.Get` Gets the bearings for a location data array where the bearing for each point will always be the direction of the next point.
 - `Modify.CropImage` Crops a bitmap to the size and position of a Rectangle object.
+- `Smart.RandomImageFromRandomPanorama` Returns a 2D image from a random panorama facing a random direction. Zoom of image is higher the lower resolution you request.
