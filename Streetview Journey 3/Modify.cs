@@ -109,5 +109,13 @@ namespace Streetview_Journey_3
                 return 0;
             return Convert.ToInt32(Math.Ceiling(Math.Log(avgDistance / desiredMPerPoint - 1.0, 2) + 1.0));
         }
+
+        public static Bitmap CropImage(Bitmap image, Rectangle cropRectangle)
+        {
+            Bitmap nb = new Bitmap(cropRectangle.Width, cropRectangle.Height);
+            Graphics g = Graphics.FromImage(nb);
+            g.DrawImage(image, -cropRectangle.X, -cropRectangle.Y);
+            return nb;
+        }
     }
 }
