@@ -9,6 +9,26 @@ namespace Streetview_Journey_3
 {
     class Get
     {
+        public static string[] GooglePanoIDs((double Lat, double Lon)[] locData, int searchRadius = 50)
+        {
+            string[] outStrings = new string[locData.Length];
+            Parallel.For(0, outStrings.Length, i =>
+            {
+                outStrings[i] = Web.GetGooglePanoID(locData[i], searchRadius);
+            });
+            return Remove.Nulls(outStrings);
+        }
+
+        public static string[] PanoIDs((double Lat, double Lon)[] locData, int searchRadius = 50)
+        {
+            string[] outStrings = new string[locData.Length];
+            Parallel.For(0, outStrings.Length, i =>
+            {
+                outStrings[i] = Web.GetPanoID(locData[i], searchRadius);
+            });
+            return Remove.Nulls(outStrings);
+        }
+
         public static string RandomGooglePanoID()
         {
             Random rng = new Random();
@@ -108,13 +128,7 @@ namespace Streetview_Journey_3
 
         public static string PanoIDsString((double Lat, double Lon)[] locData, int searchRadius = 50)
         {
-            string[] outStrings = new string[locData.Length];
-            Parallel.For(0, outStrings.Length, i =>
-            {
-                outStrings[i] = Web.GetPanoID(locData[i], searchRadius);
-            });
-
-            outStrings = Remove.Nulls(outStrings);
+            string[] outStrings = PanoIDs(locData, searchRadius);
 
             string returnString = "";
             foreach (string id in outStrings)
