@@ -65,3 +65,4 @@ GPX files can be downloaded from [here](https://mapstogpx.com/) using a google m
 - `Smart.RandomImageFromRandomPanorama` Returns a 2D image from a random panorama facing a random direction. Zoom of image is higher the lower resolution you request.
 - `Smart.ScreenshotSequence` Downloads a sequence of screenshots to a folder from an input file. You display scaling % must be taken into account for resolution.
 - `Smart.PanoramaSequence` Downloads a sequence of panoramas to a folder from an input file. Panoramas have an aspect ratio of 2:1.
+- `Smart.ImageSequence` Downloads a sequence of streetview images to a folder from the static streetview api.

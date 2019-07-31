@@ -62,5 +62,15 @@ namespace Streetview_Journey_3
                 locData = Modify.Interpolate(locData, distance, searchRadius);
             Download.AllPanoramas(locData, outputFolder, ImageFormat.Jpeg, resX, resY);
         }
+
+        public static void ImageSequence(string inputFile, string outputFolder, Type type, int resX, int resY, int fieldOfView, int searchRadius = 50)
+        {
+            var locData = Import.Auto(inputFile);
+            double distance = type == Type.Drive ? 5 : 1;
+            if (Get.AverageDistance(locData) > distance)
+                locData = Modify.Interpolate(locData, distance, searchRadius);
+            var bearings = Bearing.Get(locData);
+            Download.AllImages(locData, bearings, 0, resX, resY, fieldOfView, outputFolder);
+        }
     }
 }
