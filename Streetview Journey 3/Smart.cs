@@ -53,5 +53,14 @@ namespace Streetview_Journey_3
             double wait = 1920 * 1080 >= resX * resY ? 5 : 10;
             Download.AllScreenshots(locData, bearings, resX, resY, 0, wait, outputFolder);
         }
+
+        public static void PanoramaSequence(string inputFile, string outputFolder, Type type, int resX, int resY, int searchRadius = 50)
+        {
+            var locData = Import.Auto(inputFile);
+            double distance = type == Type.Drive ? 5 : 1;
+            if (Get.AverageDistance(locData) > distance)
+                locData = Modify.Interpolate(locData, distance, searchRadius);
+            Download.AllPanoramas(locData, outputFolder, ImageFormat.Jpeg, resX, resY);
+        }
     }
 }
