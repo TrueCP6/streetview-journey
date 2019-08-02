@@ -44,8 +44,8 @@ GPX files can be downloaded from [here](https://mapstogpx.com/) using a google m
 - `Get.ExactCoords` Takes a location data array and snaps every point to the place of a panorama.
 - `Get.PanoIDsString` String of all panorama IDs from a location data array.
 - `Export.ToSVJ` Saves the given location data array as an svj file.
-- `Download.AllPanoramas` Downloads a 360 equirectangular image to a folder for every point in a sequence.
-- `Download.Panorama` Returns a bitmap in equirectangular format. Uses 400mb of memory per image so arrays are a bad idea. Will throw an exception if given a panorama ID uploaded by a user starting with `CAosSLEF`
+- `Download.AllPanoramas` Downloads a 360 equirectangular image to a folder for every point in a sequence. Panoramas have an aspect ratio of 2:1.
+- `Download.Panorama` Returns a bitmap in equirectangular format. Uses 400mb of memory per image so arrays are a bad idea. Will throw an exception if given a panorama ID uploaded by a user starting with `CAosSLEF`. Panoramas have an aspect ratio of 2:1.
 - `Download.AllScreenshots` Opens a window of Firefox and takes and saves a screenshot for every point. Requires `Download.geckoDriverPath` to be set. Returns a string array of short road/place names the same length as the input location data array. Can still be used like a void method.
 - `Download.AllImages` Uses the static streetview api to download an image for every point.
 - `Calculate.Offset` Calculates the offset angle needed to offset a panorama using bearing.
@@ -58,7 +58,7 @@ GPX files can be downloaded from [here](https://mapstogpx.com/) using a google m
 - `Calculate.AddBearing` Adds 2 bearings together with wrap around.
 - `Bearing.OffsetPanorama` Returns an offset bitmap wrapped around to the right for a certain amount in degrees.
 - `Bearing.Trim` Same function as `Modify.Trim`, instead for bearings.
-- `Bearing.Smooth` Smoothes out a bearings array.
+- `Bearing.Smooth` Smoothes out a bearings array. A smooth value can be given or smoothing will be done automatically.
 - `Bearing.Trackpoint` Returns a bearings array where the bearing tracks a specific point.
 - `Bearing.Get` Gets the bearings for a location data array where the bearing for each point will always be the direction of the next point.
 - `Modify.CropImage` Crops a bitmap to the size and position of a Rectangle object.
@@ -68,3 +68,4 @@ GPX files can be downloaded from [here](https://mapstogpx.com/) using a google m
 - `Smart.ImageSequence` Downloads a sequence of streetview images to a folder from the static streetview api.
 - `Get.PanoIDs` Gets an array of panorama IDs from a location data array.
 - `Get.GooglePanoIDs` Gets an array of panorama IDs uploaded by Google from a location data array.
+- `Calculate.BearingDifference` The difference between 2 bearings.
