@@ -49,7 +49,7 @@ namespace Streetview_Journey_3
             double distance = type == Type.Drive ? 5 : 1;
             if (Get.AverageDistance(locData) > distance)
                 locData = Modify.Interpolate(locData, distance, searchRadius);
-            var bearings = Bearing.Get(locData);
+            var bearings = Bearing.Smooth(Bearing.Get(locData));
             double wait = 1920 * 1080 >= resX * resY ? 5 : 10;
             Download.AllScreenshots(locData, bearings, resX, resY, 0, wait, outputFolder);
         }
@@ -69,7 +69,7 @@ namespace Streetview_Journey_3
             double distance = type == Type.Drive ? 5 : 1;
             if (Get.AverageDistance(locData) > distance)
                 locData = Modify.Interpolate(locData, distance, searchRadius);
-            var bearings = Bearing.Get(locData);
+            var bearings = Bearing.Smooth(Bearing.Get(locData));
             Download.AllImages(locData, bearings, 0, resX, resY, fieldOfView, outputFolder);
         }
     }
