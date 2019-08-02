@@ -99,14 +99,6 @@ namespace Streetview_Journey_3
             return Distances(locData).Sum();
         }
 
-        public static string BearingString(double[] bearings)
-        {
-            string outstring = "";
-            foreach (double bearing in bearings)
-                outstring += bearing + Environment.NewLine;
-            return outstring;
-        }
-
         public static string String((double Lat, double Lon)[] locData)
         {
             string outstring = "";

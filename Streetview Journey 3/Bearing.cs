@@ -96,5 +96,13 @@ namespace Streetview_Journey_3
             bearings[bearings.Length - 1] = bearings[bearings.Length - 2];
             return bearings;
         }
+
+        public static string GetString(double[] bearings)
+        {
+            string outstring = "";
+            foreach (double bearing in bearings)
+                outstring += bearing + Environment.NewLine;
+            return outstring;
+        }
     }
 }

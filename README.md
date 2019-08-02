@@ -39,7 +39,7 @@ GPX files can be downloaded from [here](https://mapstogpx.com/) using a google m
 - `Get.Distances` Gets an array of the distances between each point for a location data array.
 - `Get.AverageDistance` The average distance between points for a location data array in meters.
 - `Get.TotalDistance` The total distance for a location data array in meters.
-- `Get.BearingsString` String of all the bearings of a bearings array.
+- `Bearing.GetString` String of all the bearings of a bearings array.
 - `Get.String` String of all points in a location data array.
 - `Get.ExactCoords` Takes a location data array and snaps every point to the place of a panorama.
 - `Get.PanoIDsString` String of all panorama IDs from a location data array.
