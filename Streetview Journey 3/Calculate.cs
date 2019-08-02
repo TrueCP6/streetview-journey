@@ -10,18 +10,7 @@ namespace Streetview_Journey_3
     {
         public static double BearingDifference(double initialBearing, double finalBearing)
         {
-            if (initialBearing > 360 || initialBearing < 0 || finalBearing > 360 || finalBearing < 0)
-                throw new ArgumentOutOfRangeException("Bearing is from 0 to 360.", new Exception());
-
-            var diff = finalBearing - initialBearing;
-            var absDiff = Math.Abs(diff);
-
-            if (absDiff <= 180)
-                return Math.Abs(absDiff == 180 ? absDiff : diff);
-            else if (finalBearing > initialBearing)
-                return Math.Abs(absDiff - 360);
-            else
-                return Math.Abs(360 - absDiff);
+            return Math.Abs((finalBearing - initialBearing + 540) % 360 - 180);
         }
 
         public static double Offset(double initialBearing, double desiredBearing)
