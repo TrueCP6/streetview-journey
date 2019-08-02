@@ -56,9 +56,11 @@ namespace Streetview_Journey_3
         {
             FirefoxDriverService service = FirefoxDriverService.CreateDefaultService(geckoDriverPath.Replace(@"\geckodriver.exe", ""), "geckodriver.exe");
             var driver = new FirefoxDriver(service);
+            double scaling = Get.DisplayScalingFactor();
             driver.Manage().Window.Size = new Size(
-                resX + 12,
-                resY + 80);
+                Convert.ToInt32(Math.Round(Convert.ToDouble(resX + 12) / scaling)),
+                Convert.ToInt32(Math.Round(Convert.ToDouble(resY + 80) / scaling))
+            );
 
             string[] placesNames = new string[locData.Length];
             for (int i = 0; i < locData.Length; i++)
