@@ -20,7 +20,7 @@ namespace Streetview_Journey_3
             Web.apiKey = File.ReadAllLines(@"C:\Users\minec\Google Drive\Programming\C#\Streetview journey\keys.txt")[0]; //set these to your keys
             Web.signingKey = File.ReadAllLines(@"C:\Users\minec\Google Drive\Programming\C#\Streetview journey\keys.txt")[1];
 
-
+            //run your code here
 
             Console.ReadLine();
         }
