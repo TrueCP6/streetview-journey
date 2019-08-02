@@ -69,3 +69,4 @@ GPX files can be downloaded from [here](https://mapstogpx.com/) using a google m
 - `Get.PanoIDs` Gets an array of panorama IDs from a location data array.
 - `Get.GooglePanoIDs` Gets an array of panorama IDs uploaded by Google from a location data array.
 - `Calculate.BearingDifference` The difference between 2 bearings.
+- `Get.DisplayScalingFactor` Gets a double equal to the display scaling factor. 1.5 = 150%.
