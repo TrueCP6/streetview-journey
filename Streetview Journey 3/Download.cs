@@ -61,8 +61,8 @@ namespace Streetview_Journey_3
             var driver = new FirefoxDriver(service, options);
             double scaling = Get.DisplayScalingFactor();
             driver.Manage().Window.Size = new Size(
-                Convert.ToInt32(Math.Round(Convert.ToDouble(resX + 12) / scaling)),
-                Convert.ToInt32(Math.Round(Convert.ToDouble(resY + 80) / scaling))
+                Convert.ToInt32(Math.Round(Convert.ToDouble(resX) / scaling)) + 12,
+                Convert.ToInt32(Math.Round(Convert.ToDouble(resY) / scaling)) + 80
             );
 
             string[] placesNames = new string[locData.Length];
@@ -70,9 +70,11 @@ namespace Streetview_Journey_3
             {
                 driver.Navigate().GoToUrl(Get.StreetviewURL(locData[i], bearings[i], pitch));
                 Thread.Sleep(Convert.ToInt32(wait * 1000));
+
                 placesNames[i] = driver.Title.Replace("Google Maps", "");
                 if (placesNames[i].EndsWith(" - "))
                     placesNames[i] = placesNames[i].Replace(" - ", "");
+
                 driver.GetScreenshot().SaveAsFile(folderPath + @"\image" + i + "." + format.ToString().ToLower(), format);
             }
             driver.Quit();
