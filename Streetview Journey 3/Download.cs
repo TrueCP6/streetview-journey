@@ -10,6 +10,7 @@ using System.Drawing.Imaging;
 using System.Threading;
 using OpenQA.Selenium;
 using System.IO;
+using OpenQA;
 
 namespace Streetview_Journey_3
 {
@@ -55,7 +56,9 @@ namespace Streetview_Journey_3
         public static string[] AllScreenshots((double Lat, double Lon)[] locData, double[] bearings, int resX, int resY, double pitch, double wait, string folderPath, ScreenshotImageFormat format = ScreenshotImageFormat.Jpeg)
         {
             FirefoxDriverService service = FirefoxDriverService.CreateDefaultService(geckoDriverPath.Replace(@"\geckodriver.exe", ""), "geckodriver.exe");
-            var driver = new FirefoxDriver(service);
+            var options = new FirefoxOptions();
+            options.LogLevel = FirefoxDriverLogLevel.Fatal;
+            var driver = new FirefoxDriver(service, options);
             double scaling = Get.DisplayScalingFactor();
             driver.Manage().Window.Size = new Size(
                 Convert.ToInt32(Math.Round(Convert.ToDouble(resX + 12) / scaling)),
