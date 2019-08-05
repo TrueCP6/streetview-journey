@@ -12,7 +12,7 @@ namespace Streetview_Journey_3
         /// Removes the duplicate points from a location data array.
         /// </summary>
         /// <param name="locData">An array of latitude-longitude points.</param>
-        /// <returns>The duplicate-free array.</returns>
+        /// <returns>A duplicate-free array.</returns>
         public static (double Lat, double Lon)[] Dupes((double Lat, double Lon)[] locData)
         {
             return locData.Distinct().ToArray();
@@ -21,7 +21,7 @@ namespace Streetview_Journey_3
         /// <summary>
         /// Removes null values from a string array.
         /// </summary>
-        /// <returns>The null-free array.</returns>
+        /// <returns>A null-free array.</returns>
         public static string[] Nulls(string[] array)
         {
             List<string> points = new List<string>();
@@ -35,7 +35,7 @@ namespace Streetview_Journey_3
         /// Removes all <c>(0, 0)</c> points from a location data array.
         /// </summary>
         /// <param name="locData">An array of latitude-longitude points.</param>
-        /// <returns>The <c>(0, 0)</c>-free array.</returns>
+        /// <returns>A <c>(0, 0)</c>-free latitude-longitude point array.</returns>
         public static (double Lat, double Lon)[] Zeroes((double Lat, double Lon)[] locData)
         {
             List<(double Lat, double Lon)> points = new List<(double Lat, double Lon)>();

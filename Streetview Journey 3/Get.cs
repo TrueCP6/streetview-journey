@@ -83,7 +83,7 @@ namespace Streetview_Journey_3
         /// <param name="panoID">A 1st or 3rd party panorama ID.</param>
         /// <param name="width">The width of the desired image.</param>
         /// <param name="height">The height of the desired image.</param>
-        /// <returns>Returns a URL to a low resolution thumbnail of a panorama.</returns>
+        /// <returns>A URL to a low resolution thumbnail of a panorama.</returns>
         public static string ThumbnailURL(string panoID, int width, int height)
         {
             return "http://maps.google.com/cbk?output=thumbnail&w=" + width+"&h="+height+"&panoid="+panoID;

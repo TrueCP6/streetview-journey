@@ -94,7 +94,7 @@ namespace Streetview_Journey_3
         /// <param name="locData">An array of latitude-longitude points.</param>
         /// <param name="desiredMperPoint">The desired distance in meters between each point after interpolation. This is not accurate but instead determines the length of time taken to complete. Lower values take longer.</param>
         /// <param name="searchRadius">The search radius in meters for each new point.</param>
-        /// <returns>An interpolated location data array,</returns>
+        /// <returns>An interpolated location data array.</returns>
         public static (double Lat, double Lon)[] Interpolate((double Lat, double Lon)[] locData, double desiredMperPoint, int searchRadius = 50)
         {
             locData = Get.ExactCoords(locData, searchRadius);

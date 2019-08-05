@@ -119,7 +119,7 @@ namespace Streetview_Journey_3
         }
 
         /// <summary>
-        /// Download a static streetview image for each point in a location data array/
+        /// Download a static streetview image for each point in a location data array
         /// </summary>
         /// <param name="locData">An array of latitude-longitude points.</param>
         /// <param name="bearings">An array of bearing values from 0 to 360.</param>
