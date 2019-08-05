@@ -129,9 +129,8 @@ namespace Streetview_Journey_3
 
         private static void RemoveElementsByClassName(FirefoxDriver driver, string[] elements)
         {
-            var js = (IJavaScriptExecutor)driver;
             foreach (string element in elements)
-                js.ExecuteScript("return document.getElementsByClassName('" + element + "')[0].remove();");
+                driver.ExecuteScript("return document.getElementsByClassName('" + element + "')[0].remove();");
         }
 
         /// <summary>
