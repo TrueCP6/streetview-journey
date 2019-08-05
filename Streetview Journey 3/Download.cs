@@ -111,11 +111,27 @@ namespace Streetview_Journey_3
                 if (placesNames[i].EndsWith(" - "))
                     placesNames[i] = placesNames[i].Remove(placesNames[i].Length - 3);
 
+                RemoveElementsByClassName(driver, new string[] {
+                    "widget-titlecard widget-titlecard-show-spotlight-link widget-titlecard-show-settings-menu",
+                    "widget-image-header",
+                    "scene-footer-container noprint",
+                    "widget-minimap",
+                    "app-vertical-widget-holder noprint",
+                    "app-horizontal-widget-holder noprint"
+                });
+
                 driver.GetScreenshot().SaveAsFile(folderPath + @"\image" + i + "." + format.ToString().ToLower(), format);
             }
             driver.Quit();
 
             return placesNames;
+        }
+
+        private static void RemoveElementsByClassName(FirefoxDriver driver, string[] elements)
+        {
+            var js = (IJavaScriptExecutor)driver;
+            foreach (string element in elements)
+                js.ExecuteScript("return document.getElementsByClassName('" + element + "')[0].remove();");
         }
 
         /// <summary>
