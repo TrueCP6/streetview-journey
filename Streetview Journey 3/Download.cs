@@ -73,7 +73,7 @@ namespace Streetview_Journey_3
 
                 placesNames[i] = driver.Title.Replace("Google Maps", "");
                 if (placesNames[i].EndsWith(" - "))
-                    placesNames[i] = placesNames[i].Replace(" - ", "");
+                    placesNames[i] = placesNames[i].Remove(placesNames[i].Length - 3);
 
                 driver.GetScreenshot().SaveAsFile(folderPath + @"\image" + i + "." + format.ToString().ToLower(), format);
             }
