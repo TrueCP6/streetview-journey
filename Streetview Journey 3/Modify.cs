@@ -9,8 +9,18 @@ using System.Threading.Tasks;
 
 namespace Streetview_Journey_3
 {
+    /// <summary>
+    /// Modification of images and location data.
+    /// </summary>
     class Modify
     {
+        /// <summary>
+        /// Resizes an image.
+        /// </summary>
+        /// <param name="image">The input image.</param>
+        /// <param name="width">The width of the output image.</param>
+        /// <param name="height">The height of the output image.</param>
+        /// <returns>A resized bitmap image.</returns>
         public static Bitmap ResizeImage(Image image, int width, int height)
         {
             var destRect = new Rectangle(0, 0, width, height);
@@ -36,6 +46,12 @@ namespace Streetview_Journey_3
             return destImage;
         }
 
+        /// <summary>
+        /// Trims a location data array to a certain length while trying to maintain speed. Can result in duplicate points. 
+        /// </summary>
+        /// <param name="locData">An array of latitude-longitude points.</param>
+        /// <param name="trimTo">The desired length of the output array.</param>
+        /// <returns>A trimmed location data array with its length equal to the input trim value.</returns>
         public static (double Lat, double Lon)[] SmoothTrim((double Lat, double Lon)[] locData, int trimTo)
         {
             double distancePerPoint = Get.TotalDistance(locData) / Convert.ToDouble(trimTo);
@@ -57,6 +73,12 @@ namespace Streetview_Journey_3
             return closestIndexFound;
         }
 
+        /// <summary>
+        /// Trims a location data array to a certain length.
+        /// </summary>
+        /// <param name="locData">An array of latitude-longitude points.</param>
+        /// <param name="trimTo">The desired length of the output array.</param>
+        /// <returns>A trimmed location data array with its length equal to the input trim value.</returns>
         public static (double Lat, double Lon)[] Trim((double Lat, double Lon)[] locData, int trimTo)
         {
             double multiplier = Convert.ToDouble(locData.Length) / Convert.ToDouble(trimTo);
@@ -66,6 +88,13 @@ namespace Streetview_Journey_3
             return output;
         }
 
+        /// <summary>
+        /// Adds additional usable points in between points in a location data array to increase its length.
+        /// </summary>
+        /// <param name="locData">An array of latitude-longitude points.</param>
+        /// <param name="desiredMperPoint">The desired distance in meters between each point after interpolation. This is not accurate but instead determines the length of time taken to complete. Lower values take longer.</param>
+        /// <param name="searchRadius">The search radius in meters for each new point.</param>
+        /// <returns>An interpolated location data array,</returns>
         public static (double Lat, double Lon)[] Interpolate((double Lat, double Lon)[] locData, double desiredMperPoint, int searchRadius = 50)
         {
             locData = Get.ExactCoords(locData, searchRadius);
@@ -110,6 +139,12 @@ namespace Streetview_Journey_3
             return Convert.ToInt32(Math.Ceiling(Math.Log(avgDistance / desiredMPerPoint - 1.0, 2) + 1.0));
         }
 
+        /// <summary>
+        /// Crops an image at the size and position of a Rectangle object
+        /// </summary>
+        /// <param name="image">Input image.</param>
+        /// <param name="cropRectangle">Rectangle object used for crop location and size.</param>
+        /// <returns>A cropped bitmap image.</returns>
         public static Bitmap CropImage(Bitmap image, Rectangle cropRectangle)
         {
             Bitmap nb = new Bitmap(cropRectangle.Width, cropRectangle.Height);

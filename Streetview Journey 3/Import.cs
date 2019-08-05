@@ -10,6 +10,11 @@ namespace Streetview_Journey_3
 {
     class Import
     {
+        /// <summary>
+        /// Automatically chooses whether to import the given file as a .gpx or .svj.
+        /// </summary>
+        /// <param name="filePath">The path to the file. Must end in .svj or .gpx.</param>
+        /// <returns>An array of latitude-longitude points.</returns>
         public static (double Lat, double Lon)[] Auto(string filePath)
         {
             if (filePath.EndsWith(".gpx"))
@@ -19,6 +24,11 @@ namespace Streetview_Journey_3
             throw new FileLoadException();
         }
 
+        /// <summary>
+        /// Imports a .svj file.
+        /// </summary>
+        /// <param name="filePath">The input file path.</param>
+        /// <returns>An array of latitude-longitude points.</returns>
         public static (double Lat, double Lon)[] SVJ(string filePath)
         {
             string[] svj = File.ReadAllLines(filePath);
@@ -30,6 +40,11 @@ namespace Streetview_Journey_3
             return tuples;
         }
 
+        /// <summary>
+        /// Imports a .gpx file.
+        /// </summary>
+        /// <param name="filePath">The input file path.</param>
+        /// <returns>An array of latitude-longitude points.</returns>
         public static (double Lat, double Lon)[] GPX(string filePath)
         {
             string[] gpx = File.ReadAllLines(filePath);

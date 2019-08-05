@@ -9,7 +9,15 @@ namespace Streetview_Journey_3
 {
     class Bearing
     {
+        /// <summary>
+        /// The maximum automatic smooth value. Default is 10.
+        /// </summary>
         public static int smoothMax = 10;
+        /// <summary>
+        /// Automatically smoothes an array of bearings.
+        /// </summary>
+        /// <param name="bearings">An array of bearing values from 0 to 360.</param>
+        /// <returns>A smoothed array of bearing values from 0 to 360.</returns>
         public static double[] Smooth(double[] bearings)
         {
             double[] difference = new double[bearings.Length];
@@ -47,6 +55,12 @@ namespace Streetview_Journey_3
             return final;
         }
 
+        /// <summary>
+        /// Rotates an equirectangular panorama in a circle by a certain angle.
+        /// </summary>
+        /// <param name="panorama">Equirectangular panorama image.</param>
+        /// <param name="angleToOffset">Bearing angle from 0 to 360.</param>
+        /// <returns>An equirectangular panorama bitmap image.</returns>
         public static Bitmap OffsetPanorama(Bitmap panorama, double angleToOffset)
         {
             Bitmap result = new Bitmap(panorama.Width, panorama.Height);
@@ -59,6 +73,12 @@ namespace Streetview_Journey_3
             return result;
         }
 
+        /// <summary>
+        /// Trims an array of bearings down to a specific length. The pair of Modify.Trim.
+        /// </summary>
+        /// <param name="bearings">An array of bearing values from 0 to 360.</param>
+        /// <param name="trimTo">The desired length of the output array.</param>
+        /// <returns>An array of bearing values from 0 to 360.</returns>
         public static double[] Trim(double[] bearings, int trimTo)
         {
             double multiplier = Convert.ToDouble(bearings.Length) / Convert.ToDouble(trimTo);
@@ -68,6 +88,12 @@ namespace Streetview_Journey_3
             return output;
         }
 
+        /// <summary>
+        /// Smoothes an array of bearing values consistently.
+        /// </summary>
+        /// <param name="bearings">An array of bearing values from 0 to 360.</param>
+        /// <param name="smoothValue">The amount of bearings to smooth into each other.</param>
+        /// <returns>An array of bearing values from 0 to 360.</returns>
         public static double[] Smooth(double[] bearings, int smoothValue)
         {
             for (int a = 0; a < bearings.Length - smoothValue; a++)
@@ -80,6 +106,12 @@ namespace Streetview_Journey_3
             return bearings;
         }
 
+        /// <summary>
+        /// Calculates the bearings for a location data array so that they track a point.
+        /// </summary>
+        /// <param name="locData">An array of latitude-longitude points.</param>
+        /// <param name="point">A latitude-longitude point to be tracked.</param>
+        /// <returns>An array of bearing values from 0 to 360.</returns>
         public static double[] TrackPoint((double Lat, double Lon)[] locData, (double Lat, double Lon) point)
         {
             double[] bearings = new double[locData.Length];
@@ -88,6 +120,11 @@ namespace Streetview_Journey_3
             return bearings;
         }
 
+        /// <summary>
+        /// Calculates the bearings for a location data array where each point faces the direction of the next point in the array.
+        /// </summary>
+        /// <param name="locData">An array of latitude-longitude points.</param>
+        /// <returns>An array of bearing values from 0 to 360.</returns>
         public static double[] Get((double Lat, double Lon)[] locData)
         {
             double[] bearings = new double[locData.Length];
@@ -97,6 +134,11 @@ namespace Streetview_Journey_3
             return bearings;
         }
 
+        /// <summary>
+        /// Gets a multilined string of each bearing in an array.
+        /// </summary>
+        /// <param name="bearings">An array of bearing values from 0 to 360.</param>
+        /// <returns>A multilined string.</returns>
         public static string GetString(double[] bearings)
         {
             string outstring = "";

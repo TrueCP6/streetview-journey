@@ -8,31 +8,64 @@ namespace Streetview_Journey_3
 {
     class Calculate
     {
+        /// <summary>
+        /// Calculates the closest difference between 2 bearing values.
+        /// </summary>
+        /// <param name="initialBearing">A bearing value from 0 to 360.</param>
+        /// <param name="finalBearing">A bearing value from 0 to 360.</param>
+        /// <returns>The closest difference between 2 bearing values.</returns>
         public static double BearingDifference(double initialBearing, double finalBearing)
         {
             return Math.Abs((finalBearing - initialBearing + 540) % 360 - 180);
         }
 
+        /// <summary>
+        /// Calculates the offset angle for <c>Bearing.OffsetPanorama</c>.
+        /// </summary>
+        /// <param name="initialBearing">A bearing value from 0 to 360.</param>
+        /// <param name="desiredBearing">A bearing value from 0 to 360.</param>
+        /// <returns>The calculated offset angle for use with <c>Bearing.OffsetPanorama</c>.</returns>
         public static double Offset(double initialBearing, double desiredBearing)
         {
             return ((desiredBearing + 360.0) - initialBearing) % 360.0;
         }
 
+        /// <summary>
+        /// Converts the Static Streetview API zoom to field of view.
+        /// </summary>
+        /// <param name="zoom">Zoom level.</param>
+        /// <returns>Field of view.</returns>
         public static double ZoomToFOV(double zoom)
         {
             return 180.0 / Math.Pow(2, zoom);
         }
 
+        /// <summary>
+        /// Converts field of view to the Static Streetview API zoom.
+        /// </summary>
+        /// <param name="fov">Field of view.</param>
+        /// <returns>Streetview API zoom level.</returns>
         public static double FOVToZoom(double fov)
         {
             return Math.Log(180.0 / fov) / Math.Log(2);
         }
 
+        /// <summary>
+        /// Correctly calculates the average bearing of an array of bearings from 0 to 360.
+        /// </summary>
+        /// <param name="bearings">An array of bearing values from 0 to 360.</param>
+        /// <returns>The average of an array of bearings.</returns>
         public static double AverageBearing(double[] bearings)
         {
             return (bearings.Sum() % 360) / Convert.ToDouble(bearings.Length);
         }
 
+        /// <summary>
+        /// Calculates the distance between 2 points in meters
+        /// </summary>
+        /// <param name="point1">A latitude-longitude point.</param>
+        /// <param name="point2">A latitude-longitude point.</param>
+        /// <returns>The distance between 2 points in meters.</returns>
         public static double Distance((double Lat, double Lon) point1, (double Lat, double Lon) point2)
         {
             double R = 6371000; //radius of earth in metres
@@ -46,6 +79,12 @@ namespace Streetview_Journey_3
             return R * c;
         }
 
+        /// <summary>
+        /// Calculates the bearing from one point to another.
+        /// </summary>
+        /// <param name="point1">A latitude-longitude point.</param>
+        /// <param name="point2">A latitude-longitude point.</param>
+        /// <returns>A bearing value from 0 to 360.</returns>
         public static double Bearing((double Lat, double Lon) point1, (double Lat, double Lon) point2)
         {
             double lat1 = point1.Lat * (Math.PI / 180.0);
@@ -56,6 +95,12 @@ namespace Streetview_Journey_3
             return (Math.Atan2(Math.Sin(lon2 - lon1) * Math.Cos(lat2), Math.Cos(lat1) * Math.Sin(lat2) - Math.Sin(lat1) * Math.Cos(lat2) * Math.Cos(lon2 - lon1)) * (180 / Math.PI) + 360) % 360;
         }
 
+        /// <summary>
+        /// Calculates the midpoint between 2 points.
+        /// </summary>
+        /// <param name="point1">A latitude-longitude point.</param>
+        /// <param name="point2">A latitude-longitude point.</param>
+        /// <returns>The midpoint between 2 points.</returns>
         public static (double Lat, double Lon) Midpoint((double Lat, double Lon) point1, (double Lat, double Lon) point2)
         {
             double lat1 = point1.Lat * (Math.PI / 180.0);
@@ -69,6 +114,12 @@ namespace Streetview_Journey_3
             return (lat3 * (180.0 / Math.PI), lon3 * (180.0 / Math.PI));
         }
 
+        /// <summary>
+        /// Adds 2 bearing values together with wrap around.
+        /// </summary>
+        /// <param name="initialBearing">A bearing value from 0 to 360.</param>
+        /// <param name="valueToAdd">A bearing value from 0 to 360.</param>
+        /// <returns>A bearing value from 0 to 360.</returns>
         public static double AddBearing(double initialBearing, double valueToAdd) { return (initialBearing + valueToAdd + 360) % 360; }
     }
 }

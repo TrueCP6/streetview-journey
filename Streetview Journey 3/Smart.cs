@@ -8,9 +8,19 @@ using System.Drawing.Imaging;
 
 namespace Streetview_Journey_3
 {
+    /// <summary>
+    /// Application uses of this library.
+    /// </summary>
     class Smart
     {
         public enum Type { Drive, Hike }
+
+        /// <summary>
+        /// Takes an SVJ or GPX file and automatically interpolates and fully details itself and saves a .svj file with the same name.
+        /// </summary>
+        /// <param name="path">The path of the input file.</param>
+        /// <param name="type">The type of travel that was used in the route. Can be Drive or Hike.</param>
+        /// <param name="searchRadius">The search radius in meters for each new point.</param>
         public static void ToSVJ(string path, Type type, int searchRadius = 50)
         {
             var locData = Import.Auto(path);
@@ -20,6 +30,15 @@ namespace Streetview_Journey_3
             Export.ToSVJ(locData, path.Replace(".gpx", ".svj"));
         }
 
+        /// <summary>
+        /// Takes an SVJ or GPX file and automatically interpolates and fully details itself and saves a .svj file with the same name. The desired length can be chosen.
+        /// </summary>
+        /// <param name="path">The path of the input file.</param>
+        /// <param name="type">The type of travel that was used in the route. Can be Drive or Hike.</param>
+        /// <param name="trimTo">The desired amount of points that it will return.</param>
+        /// <param name="maintainSpeed">Whether to try to keep a constant speed when trimming. Takes slightly longer when true and may result in duplicates.</param>
+        /// <param name="keepDupes">Whether to keep duplicate points in the output file. Length may not be equal to <c>trimTo</c> if true.</param>
+        /// <param name="searchRadius">The search radius in meters for each new point.</param>
         public static void ToSVJ(string path, Type type, int trimTo, bool maintainSpeed, bool keepDupes, int searchRadius = 50)
         {
             var locData = Import.Auto(path);
@@ -35,6 +54,12 @@ namespace Streetview_Journey_3
             Export.ToSVJ(locData, path.Replace(".gpx", ".svj"));
         }
 
+        /// <summary>
+        /// Gets a random image facing a random direction from a random panorama on Earth. The lower the resolution the higher the zoom.
+        /// </summary>
+        /// <param name="resX">The width of the output image.</param>
+        /// <param name="resY">The height of the output image.</param>
+        /// <returns>A bitmap image.</returns>
         public static Bitmap RandomImageFromRandomPanorama(int resX, int resY)
         {
             Random rng = new Random();
@@ -43,6 +68,15 @@ namespace Streetview_Journey_3
             return image;
         }
 
+        /// <summary>
+        /// Downloads a sequence of screenshots from a .svj or .gpx file to a folder.
+        /// </summary>
+        /// <param name="inputFile">The path to the input .gpx or .svj file.</param>
+        /// <param name="outputFolder">The path to the folder into which all images will be saved.</param>
+        /// <param name="type">The type of travel that was used in the route. Can be Drive or Hike.</param>
+        /// <param name="resX">The width of the output images.</param>
+        /// <param name="resY">The height of the output images.</param>
+        /// <param name="searchRadius">The search radius in meters for each new point.</param>
         public static void ScreenshotSequence(string inputFile, string outputFolder, Type type, int resX, int resY, int searchRadius = 50)
         {
             var locData = Import.Auto(inputFile);
@@ -54,6 +88,15 @@ namespace Streetview_Journey_3
             Download.AllScreenshots(locData, bearings, resX, resY, 0, wait, outputFolder);
         }
 
+        /// <summary>
+        /// Downloads a sequence of panoramas from a .svj or .gpx file to a folder.
+        /// </summary>
+        /// <param name="inputFile">The path to the input .gpx or .svj file.</param>
+        /// <param name="outputFolder">The path to the folder into which all images will be saved.</param>
+        /// <param name="type">The type of travel that was used in the route. Can be Drive or Hike.</param>
+        /// <param name="resX">The width of the output images. Panoramas have an aspect ratio of 2:1.</param>
+        /// <param name="resY">The height of the output images. Panoramas have an aspect ratio of 2:1.</param>
+        /// <param name="searchRadius">The search radius in meters for each new point.</param>
         public static void PanoramaSequence(string inputFile, string outputFolder, Type type, int resX, int resY, int searchRadius = 50)
         {
             var locData = Import.Auto(inputFile);
@@ -63,6 +106,16 @@ namespace Streetview_Journey_3
             Download.AllPanoramas(locData, outputFolder, ImageFormat.Jpeg, resX, resY);
         }
 
+        /// <summary>
+        /// Downloads a sequence of static streetview images from a .svj or .gpx file to a folder.
+        /// </summary>
+        /// <param name="inputFile">The path to the input .gpx or .svj file.</param>
+        /// <param name="outputFolder">The path to the folder into which all images will be saved.</param>
+        /// <param name="type">The type of travel that was used in the route. Can be Drive or Hike.</param>
+        /// <param name="resX">The width of the output images. Max resolution is determined by your API plan.</param>
+        /// <param name="resY">The height of the output images. Max resolution is determined by your API plan.</param>
+        /// <param name="fieldOfView">The output field of view of all the images.</param>
+        /// <param name="searchRadius">The search radius in meters for each new point.</param>
         public static void ImageSequence(string inputFile, string outputFolder, Type type, int resX, int resY, int fieldOfView, int searchRadius = 50)
         {
             var locData = Import.Auto(inputFile);
