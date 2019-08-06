@@ -26,12 +26,18 @@ namespace Streetview_Journey_3
         /// <param name="format">The image format of the output panoramas.</param>
         /// <param name="width">The width of each output panorama. Panoramas have an aspect ratio of 2:1</param>
         /// <param name="height">The height of each output panorama. Panoramas have an aspect ratio of 2:1</param>
-        public static void AllPanoramas((double Lat, double Lon)[] locData, string folderPath, ImageFormat format, int width, int height)
+        /// /// <param name="runInParallel">Whether to download images in parallel or not. Will result in significant memory usage if true.</param>
+        public static void AllPanoramas((double Lat, double Lon)[] locData, string folderPath, ImageFormat format, int width, int height, bool runInParallel = true)
         {
             string[] panoIDs = Get.GooglePanoIDs(locData);
 
-            for (int i = 0; i < panoIDs.Length; i++)
-                Modify.ResizeImage(Panorama(panoIDs[i]), width, height).Save(folderPath + @"\image" + i + "." + format.ToString().ToLower(), format);
+            if (runInParallel)
+                Parallel.For(0, panoIDs.Length, i => {
+                    Modify.ResizeImage(Panorama(panoIDs[i]), width, height).Save(folderPath + @"\image" + i + "." + format.ToString().ToLower(), format);
+                });
+            else
+                for (int i = 0; i < panoIDs.Length; i++)
+                    Modify.ResizeImage(Panorama(panoIDs[i]), width, height).Save(folderPath + @"\image" + i + "." + format.ToString().ToLower(), format);
         }
 
         /// <summary>
@@ -56,6 +62,7 @@ namespace Streetview_Journey_3
                  for (int y = 0; y < 13; y++)
                      using (Graphics g = Graphics.FromImage(result))
                          g.DrawImage(images[x, y], x * 512, y * 512);
+
             return result;
         }
 
@@ -65,12 +72,18 @@ namespace Streetview_Journey_3
         /// <param name="locData">An array of latitude-longitude points.</param>
         /// <param name="folderPath">The folder into which every panorama will be downloaded.</param>
         /// <param name="format">The image format of the output panoramas.</param>
-        public static void AllPanoramas((double Lat, double Lon)[] locData, string folderPath, ImageFormat format)
+        /// <param name="runInParallel">Whether to download images in parallel or not. Will result in significant memory usage if true.</param>
+        public static void AllPanoramas((double Lat, double Lon)[] locData, string folderPath, ImageFormat format, bool runInParallel = true)
         {
             string[] panoIDs = Get.GooglePanoIDs(locData);
 
-            for (int i = 0; i < panoIDs.Length; i++)
-                Panorama(panoIDs[i]).Save(folderPath + @"\image" + i + "." + format.ToString().ToLower(), format);
+            if (runInParallel)
+                Parallel.For(0, panoIDs.Length, i => {
+                    Panorama(panoIDs[i]).Save(folderPath + @"\image" + i + "." + format.ToString().ToLower(), format);
+                });
+            else
+                for (int i = 0; i < panoIDs.Length; i++)
+                    Panorama(panoIDs[i]).Save(folderPath + @"\image" + i + "." + format.ToString().ToLower(), format);
         }
 
         /// <summary>
@@ -105,6 +118,7 @@ namespace Streetview_Journey_3
             for (int i = 0; i < locData.Length; i++)
             {
                 driver.Navigate().GoToUrl(Get.StreetviewURL(locData[i], bearings[i], pitch));
+
                 Thread.Sleep(Convert.ToInt32(wait * 1000));
 
                 placesNames[i] = driver.Title.Replace("Google Maps", "");
