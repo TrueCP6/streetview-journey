@@ -8,6 +8,25 @@ namespace Streetview_Journey_3
 {
     class Calculate
     {
+        public const double radius = 6371000;
+
+        /// <summary>
+        /// Calculates a destination point given a start point, distance and bearing.
+        /// </summary>
+        /// <param name="startPoint">A latitude-longitude point.</param>
+        /// <param name="distance">A distance in meters.</param>
+        /// <param name="bearing">A bearing value from 0 to 360.</param>
+        /// <returns>A latitude-longitude point.</returns>
+        public static (double Lat, double Lon) Destination((double Lat, double Lon) startPoint, double distance, double bearing)
+        {
+            double φ1 = startPoint.Lat * (Math.PI / 180);
+            double λ1 = startPoint.Lon * (Math.PI / 180);
+            double brng = bearing * (Math.PI / 180);
+            double φ2 = Math.Asin(Math.Sin(φ1) * Math.Cos(distance / radius) + Math.Cos(φ1) * Math.Sin(distance / radius) * Math.Cos(brng));
+            double λ2 = λ1 + Math.Atan2(Math.Sin(brng) * Math.Sin(distance / radius) * Math.Cos(φ1), Math.Cos(distance / radius) - Math.Sin(φ1) * Math.Sin(φ2));
+            return (φ2 * (180 / Math.PI), λ2 * (180 / Math.PI));
+        }
+
         /// <summary>
         /// Calculates the closest difference between 2 bearing values.
         /// </summary>
@@ -68,7 +87,6 @@ namespace Streetview_Journey_3
         /// <returns>The distance between 2 points in meters.</returns>
         public static double Distance((double Lat, double Lon) point1, (double Lat, double Lon) point2)
         {
-            double R = 6371000; //radius of earth in metres
             double φ1 = point1.Lat * (Math.PI / 180.0);
             double φ2 = point2.Lat * (Math.PI / 180.0);
             double Δφ = (point2.Lat - point1.Lat) * (Math.PI / 180.0);
@@ -76,7 +94,7 @@ namespace Streetview_Journey_3
             double a = Math.Sin(Δφ / 2) * Math.Sin(Δφ / 2) + Math.Cos(φ1) * Math.Cos(φ2) * Math.Sin(Δλ / 2) * Math.Sin(Δλ / 2);
             double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
 
-            return R * c;
+            return radius * c;
         }
 
         /// <summary>
