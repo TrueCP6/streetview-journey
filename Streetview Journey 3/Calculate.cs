@@ -11,6 +11,32 @@ namespace Streetview_Journey_3
         public const double radius = 6371000;
 
         /// <summary>
+        /// Calculates an intermediate point a fraction along a great circle path between 2 points.
+        /// </summary>
+        /// <param name="StartPoint">A latitude-longitude point.</param>
+        /// <param name="EndPoint">A latitude-longitude point.</param>
+        /// <param name="fraction">A number from 0 to 1 as a fraction of the distance along the way to interpolate.</param>
+        /// <returns>A latitude-longitude point.</returns>
+        public static (double Lat, double Lon) IntermediatePoint((double Lat, double Lon) StartPoint, (double Lat, double Lon) EndPoint, double fraction)
+        {
+            if (fraction < 0 || fraction > 1)
+                throw new ArgumentOutOfRangeException();
+            double angDist = Distance(StartPoint, EndPoint) / radius;
+            double lat1 = StartPoint.Lat * (Math.PI / 180);
+            double lon1 = StartPoint.Lon * (Math.PI / 180);
+            double lat2 = EndPoint.Lat * (Math.PI / 180);
+            double lon2 = EndPoint.Lon * (Math.PI / 180);
+            double a = Math.Sin((1 - fraction) * angDist) / Math.Sin(angDist);
+            double b = Math.Sin(fraction * angDist) / Math.Sin(angDist);
+            double x = a * Math.Cos(lat1) * Math.Cos(lon1) + b * Math.Cos(lat2) * Math.Cos(lon2);
+            double y = a * Math.Cos(lat1) * Math.Sin(lon1) + b * Math.Cos(lat2) * Math.Sin(lon2);
+            double z = a * Math.Sin(lat1) + b * Math.Sin(lat2);
+            double lat3 = Math.Atan2(z, Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2)));
+            double lon3 = Math.Atan2(y, x);
+            return (lat3 * (180 / Math.PI), lon3 * (180 / Math.PI));
+        }
+
+        /// <summary>
         /// Calculates a destination point given a start point, distance and bearing.
         /// </summary>
         /// <param name="startPoint">A latitude-longitude point.</param>
