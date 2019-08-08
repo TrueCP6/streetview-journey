@@ -131,7 +131,8 @@ namespace Streetview_Journey_3
                     "scene-footer-container noprint",
                     "widget-minimap",
                     "app-vertical-widget-holder noprint",
-                    "app-horizontal-widget-holder noprint"
+                    "app-horizontal-widget-holder noprint",
+                    "watermark watermark-imagery"
                 });
 
                 driver.GetScreenshot().SaveAsFile(folderPath + @"\image" + i + "." + format.ToString().ToLower(), format);
