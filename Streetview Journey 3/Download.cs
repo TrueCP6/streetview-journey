@@ -19,6 +19,64 @@ namespace Streetview_Journey_3
     class Download
     {
         /// <summary>
+        /// Download a screenshot from the streetview website for each point in a location data array. 
+        /// </summary>
+        /// <param name="locData">An array of latitude-longitude points.</param>
+        /// <param name="bearings">An array of bearing values from 0 to 360.</param>
+        /// <param name="resX">The width of each output image.</param>
+        /// <param name="resY">The height of each output image.</param>
+        /// <param name="pitch">The pitch of each output image.</param>
+        /// <param name="folderPath">The folder into which every screenshot will be saved.</param>
+        /// <param name="maxWindows">The maximum amount of Firefox windows to be opened at once. Higher values mean faster overall downloads but slower machines may suffer. Resolution also affects performance.</param>
+        /// <param name="format">The format in which to save every image.</param>
+        /// <returns>An array of basic road/place names with one for each point given from the location data array.</returns>
+        public static string[] AllScreenshots((double Lat, double Lon)[] locData, double[] bearings, int resX, int resY, double pitch, string folderPath, int maxWindows, ScreenshotImageFormat format = ScreenshotImageFormat.Jpeg)
+        {
+            FirefoxDriver[] drivers = new FirefoxDriver[maxWindows];
+            double scaling = Get.DisplayScalingFactor();
+            Size windowSize = new Size(
+                Convert.ToInt32(Math.Round(Convert.ToDouble(resX) / scaling)) + 12,
+                Convert.ToInt32(Math.Round(Convert.ToDouble(resY) / scaling)) + 80
+            );
+            string[] placesNames = new string[locData.Length];
+
+            Parallel.For(0, maxWindows, a =>
+            {
+                FirefoxOptions options = new FirefoxOptions();
+                options.LogLevel = FirefoxDriverLogLevel.Fatal;
+                FirefoxDriverService service = FirefoxDriverService.CreateDefaultService(geckoDriverPath.Replace(@"\geckodriver.exe", ""), "geckodriver.exe");
+                drivers[a] = new FirefoxDriver(service, options);
+                drivers[a].Manage().Window.Size = windowSize;
+
+                for (int b = a; b < locData.Length; b += maxWindows)
+                {
+                    drivers[a].Navigate().GoToUrl(Get.StreetviewURL(locData[b], bearings[b], pitch));
+
+                    Wait(drivers[a]);
+
+                    placesNames[b] = drivers[a].Title.Replace("Google Maps", "");
+                    if (placesNames[b].EndsWith(" - "))
+                        placesNames[b] = placesNames[b].Remove(placesNames[b].Length - 3);
+
+                    RemoveElementsByClassName(drivers[a], new string[] {
+                        "widget-titlecard widget-titlecard-show-spotlight-link widget-titlecard-show-settings-menu",
+                        "widget-image-header",
+                        "scene-footer-container noprint",
+                        "widget-minimap",
+                        "app-vertical-widget-holder noprint",
+                        "app-horizontal-widget-holder noprint",
+                        "watermark watermark-imagery"
+                    });
+
+                    drivers[a].GetScreenshot().SaveAsFile(folderPath + @"\image" + b + "." + format.ToString().ToLower(), format);
+                }
+                drivers[a].Quit();
+            });
+
+            return placesNames;
+        }
+
+        /// <summary>
         /// Downloads a panorama for every point in a location data array.
         /// </summary>
         /// <param name="locData">An array of latitude-longitude points.</param>
@@ -97,7 +155,7 @@ namespace Streetview_Journey_3
         /// <param name="bearings">An array of bearing values from 0 to 360.</param>
         /// <param name="resX">The width of each output image.</param>
         /// <param name="resY">The height of each output image.</param>
-        /// <param name="pitch">The pitch of each output image.</param>
+        /// <param name="pitch"> </param>
         /// <param name="folderPath">The The folder into which every screenshot will be saved.</param>
         /// <param name="format">The format in which to save every image.</param>
         /// <returns>An array of basic road/place names with one for each point given from the location data array.</returns>
@@ -156,7 +214,19 @@ namespace Streetview_Journey_3
         private static void RemoveElementsByClassName(FirefoxDriver driver, string[] elements)
         {
             foreach (string element in elements)
-                driver.ExecuteScript("return document.getElementsByClassName('" + element + "')[0].remove();");
+            {
+                bool finished = false;
+                while (!finished)
+                    try
+                    {
+                        driver.ExecuteScript("return document.getElementsByClassName('" + element + "')[0].remove();");
+                        finished = true;
+                    }
+                    catch
+                    {
+                        Thread.Sleep(500);
+                    }
+            }
         }
 
         /// <summary>

@@ -84,8 +84,7 @@ namespace Streetview_Journey_3
             if (Get.AverageDistance(locData) > distance)
                 locData = Modify.Interpolate(locData, distance, searchRadius);
             var bearings = Bearing.Smooth(Bearing.Get(locData));
-            double wait = 1920 * 1080 >= resX * resY ? 5 : 10;
-            Download.AllScreenshots(locData, bearings, resX, resY, 0, wait, outputFolder);
+            Download.AllScreenshots(locData, bearings, resX, resY, 0, outputFolder);
         }
 
         /// <summary>
