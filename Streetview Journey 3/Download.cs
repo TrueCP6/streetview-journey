@@ -98,11 +98,10 @@ namespace Streetview_Journey_3
         /// <param name="resX">The width of each output image.</param>
         /// <param name="resY">The height of each output image.</param>
         /// <param name="pitch">The pitch of each output image.</param>
-        /// <param name="wait">The time in seconds after an image has been opened to wait to take a screenshot for it to fully load. This has to be tweaked based on the speed of your internet and PC.</param>
         /// <param name="folderPath">The The folder into which every screenshot will be saved.</param>
         /// <param name="format">The format in which to save every image.</param>
         /// <returns>An array of basic road/place names with one for each point given from the location data array.</returns>
-        public static string[] AllScreenshots((double Lat, double Lon)[] locData, double[] bearings, int resX, int resY, double pitch, double wait, string folderPath, ScreenshotImageFormat format = ScreenshotImageFormat.Jpeg)
+        public static string[] AllScreenshots((double Lat, double Lon)[] locData, double[] bearings, int resX, int resY, double pitch, string folderPath, ScreenshotImageFormat format = ScreenshotImageFormat.Jpeg)
         {
             FirefoxDriverService service = FirefoxDriverService.CreateDefaultService(geckoDriverPath.Replace(@"\geckodriver.exe", ""), "geckodriver.exe");
             var options = new FirefoxOptions();
@@ -119,7 +118,7 @@ namespace Streetview_Journey_3
             {
                 driver.Navigate().GoToUrl(Get.StreetviewURL(locData[i], bearings[i], pitch));
 
-                Thread.Sleep(Convert.ToInt32(wait * 1000));
+                Wait(driver);
 
                 placesNames[i] = driver.Title.Replace("Google Maps", "");
                 if (placesNames[i].EndsWith(" - "))
@@ -140,6 +139,18 @@ namespace Streetview_Journey_3
             driver.Quit();
 
             return placesNames;
+        }
+
+        private static void Wait(FirefoxDriver driver)
+        {
+            while (true)
+            {
+                try {
+                    if (driver.FindElementByClassName("widget-minimap-shim").Displayed)
+                        break;
+                } catch { }
+                Thread.Sleep(500);
+            }
         }
 
         private static void RemoveElementsByClassName(FirefoxDriver driver, string[] elements)
