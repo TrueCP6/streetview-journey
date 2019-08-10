@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing.Imaging;
+using System.IO;
 
 namespace Streetview_Journey_3
 {
@@ -84,7 +85,7 @@ namespace Streetview_Journey_3
             if (Get.AverageDistance(locData) > distance)
                 locData = Modify.Interpolate(locData, distance, searchRadius);
             var bearings = Bearing.Smooth(Bearing.Get(locData));
-            Download.AllScreenshots(locData, bearings, resX, resY, 0, outputFolder);
+            Download.AllScreenshots(locData, bearings, resX, resY, 0, outputFolder, Environment.ProcessorCount / 2);
         }
 
         /// <summary>
@@ -123,6 +124,37 @@ namespace Streetview_Journey_3
                 locData = Modify.Interpolate(locData, distance, searchRadius);
             var bearings = Bearing.Smooth(Bearing.Get(locData));
             Download.AllImages(locData, bearings, 0, resX, resY, fieldOfView, outputFolder);
+        }
+
+        /// <summary>
+        /// Creates a video from a .svj or .gpx file
+        /// </summary>
+        /// <param name="inputFile">The path to the input .svj/.gpx file.</param>
+        /// <param name="outputFolder">The folder into which all temporary images and the output video will be saved.</param>
+        /// <param name="framerate">The framerate of the output video.</param>
+        /// <param name="type">The type of travel used in the input file.</param>
+        /// <param name="resX">The width of the output video.</param>
+        /// <param name="resY">The height of the output video.</param>
+        /// <param name="searchRadius">The radius in meters to search for each image.</param>
+        public static void ScreenshotVideo(string inputFile, string outputFolder, int framerate, Type type, int resX, int resY, int searchRadius = 50)
+        {
+            var locData = Import.Auto(inputFile);
+            double distance = type == Type.Drive ? 5 : 1;
+            if (Get.AverageDistance(locData) > distance)
+                locData = Modify.Interpolate(locData, distance, searchRadius);
+            var bearings = Bearing.Get(locData);
+
+            Download.AllScreenshots(locData, bearings, resX, resY, 0, outputFolder, Environment.ProcessorCount / 2);
+
+            Export.ToVideo(framerate, outputFolder, "output.mp4");
+
+            string[] files = Directory.GetFiles(outputFolder);
+            foreach (string file in files)
+            {
+                string tempname = file.Split(new string[] {"\""}, StringSplitOptions.RemoveEmptyEntries).Last();
+                if (tempname.StartsWith("image") && tempname.Contains("."))
+                    File.Delete(file);
+            }
         }
     }
 }
