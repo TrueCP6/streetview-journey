@@ -50,6 +50,9 @@ namespace Streetview_Journey_3
 
                 for (int b = a; b < locData.Length; b += maxWindows)
                 {
+                    if (Web.GetPanoID(locData[b]).StartsWith("CAosSLEF"))
+                        locData[b] = Web.GetExact(Web.GetGooglePanoID(locData[b], 100));
+
                     drivers[a].Navigate().GoToUrl(Get.StreetviewURL(locData[b], bearings[b], pitch));
 
                     Wait(drivers[a]);
@@ -174,6 +177,9 @@ namespace Streetview_Journey_3
             string[] placesNames = new string[locData.Length];
             for (int i = 0; i < locData.Length; i++)
             {
+                if (Web.GetPanoID(locData[i]).StartsWith("CAosSLEF"))
+                    locData[i] = Web.GetExact(Web.GetGooglePanoID(locData[i], 100));
+
                 driver.Navigate().GoToUrl(Get.StreetviewURL(locData[i], bearings[i], pitch));
 
                 Wait(driver);
@@ -201,12 +207,13 @@ namespace Streetview_Journey_3
 
         private static void Wait(FirefoxDriver driver)
         {
-            while (true)
+            int tries = 0;
+            while (tries < 30)
             {
                 try {
                     if (driver.FindElementByClassName("widget-minimap-shim").Displayed)
                         break;
-                } catch { }
+                } catch { tries++; }
                 Thread.Sleep(500);
             }
         }
@@ -216,7 +223,8 @@ namespace Streetview_Journey_3
             foreach (string element in elements)
             {
                 bool finished = false;
-                while (!finished)
+                int tries = 0;
+                while (!finished && tries < 3)
                     try
                     {
                         driver.ExecuteScript("return document.getElementsByClassName('" + element + "')[0].remove();");
@@ -225,6 +233,7 @@ namespace Streetview_Journey_3
                     catch
                     {
                         Thread.Sleep(500);
+                        tries++;
                     }
             }
         }
