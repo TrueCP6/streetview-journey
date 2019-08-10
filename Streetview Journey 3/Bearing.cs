@@ -25,34 +25,24 @@ namespace Streetview_Journey_3
                 difference[i] = Calculate.BearingDifference(bearings[i], bearings[i + 1]);
             difference[difference.Length - 1] = 0;
 
-            double[] final = new double[bearings.Length];
-            for (int a = 0; a < bearings.Length - smoothMax; a++)
+            int[] maxSmooths = new int[bearings.Length - smoothMax];
+            for (int a = 0; a < maxSmooths.Length; a++)
             {
                 double sum = 0;
-                int smoothTo = smoothMax;
+                maxSmooths[a] = smoothMax;
                 for (int b = 0; b < smoothMax; b++)
                 {
                     sum += difference[a + b];
                     if (sum >= 90)
                     {
-                        smoothTo = b;
+                        maxSmooths[a] = b;
                         break;
                     }
                 }
-
-                double[] forSmooth = new double[smoothTo];
-                for (int b = 0; b < smoothTo; b++)
-                    forSmooth[b] = bearings[a + b];
-                if (forSmooth.Length != 0)
-                    final[a] = Calculate.AverageBearing(forSmooth);
-                else
-                    final[a] = bearings[a];
             }
 
-            for (int a = bearings.Length - smoothMax; a < bearings.Length; a++)
-                final[a] = bearings[a];
-
-            return final;
+            int smooth = Convert.ToInt32(Math.Round(maxSmooths.Average()));
+            return Bearing.Smooth(bearings, smooth);
         }
 
         /// <summary>
