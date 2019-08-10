@@ -19,6 +19,7 @@ namespace Streetview_Journey_3
             ServicePointManager.DefaultConnectionLimit = Environment.ProcessorCount * 12; //this makes sure the web functions don't timeout and so they don't take years to complete
             Web.apiKey = File.ReadAllLines(@"C:\Users\minec\Google Drive\Programming\C#\Streetview journey\keys.txt")[0]; //set these to your keys
             Web.signingKey = File.ReadAllLines(@"C:\Users\minec\Google Drive\Programming\C#\Streetview journey\keys.txt")[1];
+            Export.ffmpegExecutablesPath = @"D:\Programs\ffmpeg\ffmpeg-20190601-4158865-win64-static\bin";
 
             //run your code here
 
