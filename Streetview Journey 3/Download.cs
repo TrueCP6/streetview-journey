@@ -18,6 +18,34 @@ namespace Streetview_Journey_3
     /// </summary>
     class Download
     {
+        public static void AllOffsetPanoramas((double Lat, double Lon)[] locData, string folderPath, ImageFormat format, bool isFacingForward, bool runInParallel = true)
+        {
+            string[] panoIDs = Get.GooglePanoIDs(locData);
+            double[] offsets = Bearing.GetPanoramaOffsets(locData, isFacingForward);
+
+            if (runInParallel)
+                Parallel.For(0, panoIDs.Length, i => {
+                    Bearing.OffsetPanorama(Panorama(panoIDs[i]), offsets[i]).Save(folderPath + @"\image" + i + "." + format.ToString().ToLower(), format);
+                });
+            else
+                for (int i = 0; i < panoIDs.Length; i++)
+                    Bearing.OffsetPanorama(Panorama(panoIDs[i]), offsets[i]).Save(folderPath + @"\image" + i + "." + format.ToString().ToLower(), format);
+        }
+
+        public static void AllOffsetPanoramas((double Lat, double Lon)[] locData, string folderPath, ImageFormat format, int width, int height, bool isFacingForward, bool runInParallel = true)
+        {
+            string[] panoIDs = Get.GooglePanoIDs(locData);
+            double[] offsets = Bearing.GetPanoramaOffsets(locData, isFacingForward);
+
+            if (runInParallel)
+                Parallel.For(0, panoIDs.Length, i => {
+                    Bearing.OffsetPanorama(Modify.ResizeImage(Panorama(panoIDs[i]), width, height), offsets[i]).Save(folderPath + @"\image" + i + "." + format.ToString().ToLower(), format);
+                });
+            else
+                for (int i = 0; i < panoIDs.Length; i++)
+                    Bearing.OffsetPanorama(Modify.ResizeImage(Panorama(panoIDs[i]), width, height), offsets[i]).Save(folderPath + @"\image" + i + "." + format.ToString().ToLower(), format);
+        }
+
         /// <summary>
         /// Download a screenshot from the streetview website for each point in a location data array. 
         /// </summary>

@@ -9,6 +9,17 @@ namespace Streetview_Journey_3
 {
     class Bearing
     {
+        public static double[] GetPanoramaOffsets((double Lat, double Lon)[] locData, bool isFacingForward)
+        {
+            if (!isFacingForward)
+                locData = locData.Reverse().ToArray();
+            double[] bearings = Get(locData);
+            double[] offsets = new double[bearings.Length];
+            for (int i = 0; i < offsets.Length; i++)
+                offsets[i] = 360 - bearings[i];
+            return offsets;
+        }
+
         /// <summary>
         /// The maximum automatic smooth value. Default is 10.
         /// </summary>
@@ -42,7 +53,7 @@ namespace Streetview_Journey_3
             }
 
             int smooth = Convert.ToInt32(Math.Round(maxSmooths.Average()));
-            return Bearing.Smooth(bearings, smooth);
+            return Smooth(bearings, smooth);
         }
 
         /// <summary>

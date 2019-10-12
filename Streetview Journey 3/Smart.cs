@@ -188,5 +188,25 @@ namespace Streetview_Journey_3
                     File.Delete(file);
             }
         }
+
+        public static void PanoramaVideo(string inputFile, string outputFolder, int framerate, Type type, int resX, int resY, int searchRadius = 50)
+        {
+            var locData = Import.Auto(inputFile);
+            double distance = type == Type.Drive ? 5 : 1;
+            if (Get.AverageDistance(locData) > distance)
+                locData = Modify.Interpolate(locData, distance, searchRadius);
+
+            Download.AllPanoramas(locData, outputFolder, ImageFormat.Jpeg, resX, resY);
+
+            Export.ToVideo(framerate, outputFolder, "output.mp4");
+
+            string[] files = Directory.GetFiles(outputFolder);
+            foreach (string file in files)
+            {
+                string tempname = file.Split(new string[] { "\"" }, StringSplitOptions.RemoveEmptyEntries).Last();
+                if (tempname.StartsWith("image") && tempname.Contains("."))
+                    File.Delete(file);
+            }
+        }
     }
 }
