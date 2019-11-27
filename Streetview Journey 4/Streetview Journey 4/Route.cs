@@ -365,6 +365,12 @@ namespace StreetviewJourney
 
         public ImageFolder DownloadAllScreenshots(ImageFolder folder, Size size, int maxWindows = 1, double pitch = 0, ImageFileFormat format = ImageFileFormat.Jpeg)
         {
+            if (!File.Exists(Setup.GeckodriverPath))
+                throw new FileNotFoundException("No file found at the set geckodriver path.");
+
+            string geckoExe = Setup.GeckodriverPath.Split(new string[] { @"\" }, StringSplitOptions.RemoveEmptyEntries).Last();
+            string geckoDir = Setup.GeckodriverPath.Replace(@"\" + geckoExe, "");
+
             FirefoxDriver[] drivers = new FirefoxDriver[maxWindows];
             double scaling = Display.ScalingFactor();
             Size windowSize = new Size(
@@ -373,9 +379,6 @@ namespace StreetviewJourney
             );
 
             Route rt = RemoveThirdPartyPanoramas();
-
-            string geckoExe = Setup.GeckodriverPath.Split(new string[] { @"\" }, StringSplitOptions.RemoveEmptyEntries).Last();
-            string geckoDir = Setup.GeckodriverPath.Replace(@"\" + geckoExe, "");
 
             Parallel.For(0, maxWindows, a =>
             {

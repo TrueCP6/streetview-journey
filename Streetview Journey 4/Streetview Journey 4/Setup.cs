@@ -1,28 +1,38 @@
 ﻿using System;
+using System.IO;
 using System.Net;
+using System.Reflection;
 using Xabe.FFmpeg;
 
 namespace StreetviewJourney
 {
     public class Setup
     {
-        public static void Set(bool dontBillMe, string apiKey, string urlSigningSecret, string ffmpegExecutablesFolder, string geckodriverPath)
+        static Setup()
         {
-            ServicePointManager.DefaultConnectionLimit = Environment.ProcessorCount * 12;
+            ServicePointManager.DefaultConnectionLimit = Environment.ProcessorCount * 12; //stops timeout crashes
+            FFmpegExecutablesFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\ffmpeg"; //workaround to initialize FFmpegExecutablesFolder
+        }
+
+        public static void Set(bool dontBillMe, string apiKey, string urlSigningSecret)
+        {
             DontBillMe = dontBillMe;
             APIKey = apiKey;
             URLSigningSecret = urlSigningSecret;
-            FFmpegExecutablesFolder = ffmpegExecutablesFolder;
-            GeckodriverPath = geckodriverPath;
         }
 
-        public static bool DontBillMe { get; private set; }
-        public static string APIKey { get; private set; }
-        public static string URLSigningSecret { get; private set; }
-        public static string FFmpegExecutablesFolder {
+        public static bool DontBillMe;
+
+        public static string APIKey;
+
+        public static string URLSigningSecret;
+
+        public static string FFmpegExecutablesFolder
+        {
             get => FFmpeg.ExecutablesPath;
-            private set => FFmpeg.ExecutablesPath = value;
+            set => FFmpeg.ExecutablesPath = value;
         }
-        public static string GeckodriverPath { get; private set; }
+
+        public static string GeckodriverPath;
     }
 }
