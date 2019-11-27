@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29123.88
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Streetview Journey 4", "Streetview Journey 4\Streetview Journey 4.csproj", "{73A6EDBF-28B9-4D45-ACF9-4284A1ACCA09}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Debug", "Debug\Debug.csproj", "{6539AF49-2085-469D-968D-73675DA4D2FD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{73A6EDBF-28B9-4D45-ACF9-4284A1ACCA09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73A6EDBF-28B9-4D45-ACF9-4284A1ACCA09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73A6EDBF-28B9-4D45-ACF9-4284A1ACCA09}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73A6EDBF-28B9-4D45-ACF9-4284A1ACCA09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6539AF49-2085-469D-968D-73675DA4D2FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6539AF49-2085-469D-968D-73675DA4D2FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6539AF49-2085-469D-968D-73675DA4D2FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6539AF49-2085-469D-968D-73675DA4D2FD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {21A7E60E-8021-438D-B4E2-DAF73DFDE410}
+	EndGlobalSection
+EndGlobal
