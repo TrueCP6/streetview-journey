@@ -320,7 +320,7 @@ namespace StreetviewJourney
             Points = RemoveUnusablePoints(pts);
         }
 
-        public ImageFolder DownloadAllPanoramas(ImageFolder folder, ImageFileFormat format, Size size, int searchRadius = 50, bool parallel = true)
+        public ImageFolder DownloadAllPanoramas(ImageFolder folder, ImageFileFormat format, Resolution res, int searchRadius = 50, bool parallel = true)
         {
             PanoID[] ids = PanoIDs(true, searchRadius);
             ImageFormat frmt = GetFormat(format);
@@ -328,21 +328,21 @@ namespace StreetviewJourney
             if (parallel)
             {
                 Parallel.For(0, ids.Length, i => {
-                    using (Bitmap pano = ids[i].DownloadPanorama(size))
+                    using (Bitmap pano = ids[i].DownloadPanorama(res))
                         pano.Save(folder.Path + "image" + i + "." + format.ToString().ToLower(), frmt);
                 });
             }
             else
             {
                 for (int i = 0; i < ids.Length; i++)
-                    using (Bitmap pano = ids[i].DownloadPanorama(size))
+                    using (Bitmap pano = ids[i].DownloadPanorama(res))
                         pano.Save(folder.Path + "image" + i + "." + format.ToString().ToLower(), frmt);
             }
 
             return folder;
         }
 
-        public ImageFolder DownloadAllImages(ImageFolder folder, Size size, int fov, double pitch, bool parallel = true)
+        public ImageFolder DownloadAllImages(ImageFolder folder, Resolution res, int fov, double pitch, bool parallel = true)
         {
             if (Setup.DontBillMe)
                 throw new DontBillMeException("You attempted to use a function that will cause you to be billed by Google. Change Setup.DontBillMe to false to stop this exception.");
@@ -351,19 +351,19 @@ namespace StreetviewJourney
             {
                 Parallel.For(0, Length, i=> {
                     using (WebClient client = new WebClient())
-                        client.DownloadFile(Points[i].ImageURL(Points[i].Bearing, pitch, size, fov), folder.Path + "image" + i + ".png");
+                        client.DownloadFile(Points[i].ImageURL(Points[i].Bearing, pitch, res, fov), folder.Path + "image" + i + ".png");
                 });
             }
             else
             {
                 for (int i = 0; i < Length; i++)
                     using (WebClient client = new WebClient())
-                        client.DownloadFile(Points[i].ImageURL(Points[i].Bearing, pitch, size, fov), folder.Path + "image" + i + ".png");
+                        client.DownloadFile(Points[i].ImageURL(Points[i].Bearing, pitch, res, fov), folder.Path + "image" + i + ".png");
             }
             return folder;
         }
 
-        public ImageFolder DownloadAllScreenshots(ImageFolder folder, Size size, int maxWindows = 1, double pitch = 0, ImageFileFormat format = ImageFileFormat.Jpeg)
+        public ImageFolder DownloadAllScreenshots(ImageFolder folder, Resolution res, int maxWindows = 1, double pitch = 0, ImageFileFormat format = ImageFileFormat.Jpeg)
         {
             if (!File.Exists(Setup.GeckodriverPath))
                 Setup.DownloadGeckodriver();
@@ -374,8 +374,8 @@ namespace StreetviewJourney
             FirefoxDriver[] drivers = new FirefoxDriver[maxWindows];
             double scaling = Display.ScalingFactor();
             Size windowSize = new Size(
-                (int)Math.Round(size.Width / scaling) + 12,
-                (int)Math.Round(size.Height / scaling) + 80
+                (int)Math.Round(res.Width / scaling) + 12,
+                (int)Math.Round(res.Height / scaling) + 80
             );
 
             Route rt = RemoveThirdPartyPanoramas();

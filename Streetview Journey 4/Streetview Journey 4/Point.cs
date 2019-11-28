@@ -138,8 +138,8 @@ namespace StreetviewJourney
         public string StreetviewURL(Bearing bearing, double pitch) => 
             "http://maps.google.com/maps?q=&layer=c&cbll=" + Latitude + "," + Longitude + "&cbp=11," + bearing.Value + ",0,0," + pitch;
 
-        public string ImageURL(Bearing bearing, double pitch, Size size, int fov) =>
-            URL.Sign("https://maps.googleapis.com/maps/api/streetview?size=" + size.Width + "x" + size.Height + "&location=" + Latitude + "," + Longitude + "&heading=" + bearing + "&pitch=" + pitch + "&fov=" + fov + "&key=" + Setup.APIKey, Setup.URLSigningSecret);
+        public string ImageURL(Bearing bearing, double pitch, Resolution res, int fov) =>
+            URL.Sign("https://maps.googleapis.com/maps/api/streetview?size=" + res.Width + "x" + res.Height + "&location=" + Latitude + "," + Longitude + "&heading=" + bearing + "&pitch=" + pitch + "&fov=" + fov + "&key=" + Setup.APIKey, Setup.URLSigningSecret);
 
         public Bearing BearingTo(Point point2)
         {

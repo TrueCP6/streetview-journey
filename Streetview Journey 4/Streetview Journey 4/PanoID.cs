@@ -81,10 +81,10 @@ namespace StreetviewJourney
             return result;
         }
 
-        public Bitmap DownloadPanorama(Size size)
+        public Bitmap DownloadPanorama(Resolution res)
         {
-            var destRect = new Rectangle(0, 0, size.Width, size.Height);
-            var destImage = new Bitmap(size.Width, size.Height);
+            var destRect = new Rectangle(0, 0, res.Width, res.Height);
+            var destImage = new Bitmap(res.Width, res.Height);
 
             using (var image = DownloadPanorama())
             {
@@ -131,7 +131,5 @@ namespace StreetviewJourney
         public override string ToString() => ID;
 
         public static implicit operator string(PanoID id) => id.ToString();
-
-        public static Size DefaultPanoramaSize { get; } = new Size(26 * 512, 13 * 512);
     }
 }
