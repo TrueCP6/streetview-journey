@@ -366,10 +366,10 @@ namespace StreetviewJourney
         public ImageFolder DownloadAllScreenshots(ImageFolder folder, Size size, int maxWindows = 1, double pitch = 0, ImageFileFormat format = ImageFileFormat.Jpeg)
         {
             if (!File.Exists(Setup.GeckodriverPath))
-                throw new FileNotFoundException("No file found at the set geckodriver path.");
+                Setup.DownloadGeckodriver();
 
-            string geckoExe = Setup.GeckodriverPath.Split(new string[] { @"\" }, StringSplitOptions.RemoveEmptyEntries).Last();
-            string geckoDir = Setup.GeckodriverPath.Replace(@"\" + geckoExe, "");
+            string geckoExe = Path.GetFileName(Setup.GeckodriverPath);
+            string geckoDir = Path.GetDirectoryName(Setup.GeckodriverPath);
 
             FirefoxDriver[] drivers = new FirefoxDriver[maxWindows];
             double scaling = Display.ScalingFactor();
@@ -449,8 +449,15 @@ namespace StreetviewJourney
             Point[] pts = Points;
             Parallel.For(0, pts.Length, i =>
             {
-                if (pts[i].isThirdParty)
+                try
+                {
+                    if (pts[i].isThirdParty)
+                        pts[i].usable = false;
+                }
+                catch (ZeroResultsException)
+                {
                     pts[i].usable = false;
+                }
             });
             return new Route(RemoveUnusablePoints(pts));
         }

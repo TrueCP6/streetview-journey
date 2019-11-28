@@ -20,7 +20,7 @@ namespace StreetviewJourney
         public PanoID() { }
 
         public bool isThirdParty { get =>
-            ID.StartsWith("CAoSLEFGMVFpcE");
+            ID.Length == 64;
         }
 
         public static bool operator ==(PanoID left, PanoID right) => left.ID == right.ID;

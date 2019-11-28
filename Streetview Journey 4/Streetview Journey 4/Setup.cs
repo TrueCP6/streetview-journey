@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.IO;
+using System.IO.Compression;
 using System.Net;
 using System.Reflection;
 using Xabe.FFmpeg;
@@ -14,7 +16,7 @@ namespace StreetviewJourney
             FFmpegExecutablesFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\ffmpeg"; //workaround to initialize FFmpegExecutablesFolder
         }
 
-        public static void Set(bool dontBillMe, string apiKey, string urlSigningSecret)
+        public static void SetStaticStreetviewAPIInfo(bool dontBillMe, string apiKey, string urlSigningSecret)
         {
             DontBillMe = dontBillMe;
             APIKey = apiKey;
@@ -33,6 +35,35 @@ namespace StreetviewJourney
             set => FFmpeg.ExecutablesPath = value;
         }
 
-        public static string GeckodriverPath;
+        public static string GeckodriverPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\geckodriver.exe";
+
+        public static void DownloadFFmpeg()
+        {
+            FFmpeg.GetLatestVersion(true).Wait();
+        }
+
+        public static void DownloadGeckodriver()
+        {
+            HttpWebRequest req = WebRequest.Create("https://api.github.com/repos/mozilla/geckodriver/releases") as HttpWebRequest;
+            req.UserAgent = Environment.UserName;
+            dynamic data;
+            using (WebResponse resp = req.GetResponse())
+            using (Stream stream = resp.GetResponseStream())
+            using (StreamReader reader = new StreamReader(stream))
+                data = JsonConvert.DeserializeObject(reader.ReadToEnd());
+
+            string version = data[0].tag_name;
+            string architecture = Environment.Is64BitOperatingSystem ? "64" : "32";
+            string downloadURL = "https://github.com/mozilla/geckodriver/releases/download/" + version + "/geckodriver-" + version + "-win" + architecture + ".zip";
+
+            if (File.Exists(GeckodriverPath))
+                File.Delete(GeckodriverPath);
+            using (WebClient client = new WebClient())
+            using (MemoryStream stream = new MemoryStream(client.DownloadData(downloadURL)))
+            using (ZipArchive archive = new ZipArchive(stream))
+                archive.ExtractToDirectory(Path.GetDirectoryName(GeckodriverPath));
+
+            GeckodriverPath = Path.GetDirectoryName(GeckodriverPath) + @"\geckodriver.exe";
+        }
     }
 }

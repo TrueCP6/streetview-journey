@@ -33,7 +33,7 @@ namespace StreetviewJourney
         public void SaveVideo(IConversion preset, double framerate, string outputVideoPath, bool multithread = true)
         {
             if (!File.Exists(Setup.FFmpegExecutablesFolder + @"\ffmpeg.exe") && !File.Exists(Setup.FFmpegExecutablesFolder + @"\ffprobe.exe") && !File.Exists(Setup.FFmpegExecutablesFolder + @"\ffplay.exe"))
-                FFmpeg.GetLatestVersion(true).Wait();
+                Setup.DownloadFFmpeg();
 
             string fileType = ImagePaths[0].Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries).Last();
 
