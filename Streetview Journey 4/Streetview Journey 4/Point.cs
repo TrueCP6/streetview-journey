@@ -118,12 +118,11 @@ namespace StreetviewJourney
 
         public static Point RandomUsable()
         {
-            Random rng = new Random();
             bool success = false;
             Point pt = new Point();
             while (!success)
             {
-                pt = new Point(0, rng.NextDouble() * 360 - 180).Destination(rng.NextDouble() * 10018750, new Bearing((rng.NextDouble() <= 0.5) ? 0 : 180));
+                pt = Random();
                 try
                 {
                     pt = pt.Exact(500000);
@@ -133,6 +132,12 @@ namespace StreetviewJourney
             }
 
             return pt;
+        }
+
+        public static Point Random()
+        {
+            Random rng = new Random();
+            return new Point(0, rng.NextDouble() * 360 - 180).Destination(rng.NextDouble() * 10018750, new Bearing((rng.NextDouble() <= 0.5) ? 0 : 180));
         }
 
         public string StreetviewURL(Bearing bearing, double pitch) => 

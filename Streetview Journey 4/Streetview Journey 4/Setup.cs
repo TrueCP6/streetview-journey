@@ -44,6 +44,7 @@ namespace StreetviewJourney
 
         public static void DownloadGeckodriver()
         {
+            //find the latest version of geckodriver
             HttpWebRequest req = WebRequest.Create("https://api.github.com/repos/mozilla/geckodriver/releases") as HttpWebRequest;
             req.UserAgent = Environment.UserName;
             dynamic data;
@@ -52,10 +53,12 @@ namespace StreetviewJourney
             using (StreamReader reader = new StreamReader(stream))
                 data = JsonConvert.DeserializeObject(reader.ReadToEnd());
 
+            //get the url to the download
             string version = data[0].tag_name;
             string architecture = Environment.Is64BitOperatingSystem ? "64" : "32";
             string downloadURL = "https://github.com/mozilla/geckodriver/releases/download/" + version + "/geckodriver-" + version + "-win" + architecture + ".zip";
 
+            //download and extract
             if (File.Exists(GeckodriverPath))
                 File.Delete(GeckodriverPath);
             using (WebClient client = new WebClient())
@@ -63,6 +66,7 @@ namespace StreetviewJourney
             using (ZipArchive archive = new ZipArchive(stream))
                 archive.ExtractToDirectory(Path.GetDirectoryName(GeckodriverPath));
 
+            //update path
             GeckodriverPath = Path.GetDirectoryName(GeckodriverPath) + @"\geckodriver.exe";
         }
     }

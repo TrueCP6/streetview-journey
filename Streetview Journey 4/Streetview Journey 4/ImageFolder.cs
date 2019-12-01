@@ -27,7 +27,7 @@ namespace StreetviewJourney
 
         public string[] ImagePaths
         {
-            get => Files.Where(str => str.Split(new string[] {@"\"}, StringSplitOptions.RemoveEmptyEntries).Last().StartsWith("image")).ToArray();
+            get => Files.Where(str => System.IO.Path.GetFileName(str).StartsWith("image")).ToArray();
         }
 
         public void SaveVideo(IConversion preset, double framerate, string outputVideoPath, bool multithread = true)
@@ -65,5 +65,18 @@ namespace StreetviewJourney
         public string OutputVideoPath;
 
         public void DeleteVideo() => File.Delete(OutputVideoPath);
+
+        public void DeleteFiles()
+        {
+            foreach (string path in Files)
+                File.Delete(path);
+        }
+
+        public void Delete()
+        {
+            DeleteVideo();
+            DeleteFiles();
+            Directory.Delete(System.IO.Path.GetDirectoryName(Path + "virus.exe"));
+        }
     }
 }
