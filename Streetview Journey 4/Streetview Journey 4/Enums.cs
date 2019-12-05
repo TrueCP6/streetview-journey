@@ -17,6 +17,11 @@ namespace StreetviewJourney
             Tiff = 3
         }
 
+        /// <summary>
+        /// Gets the System.Drawing.Common equivalent ImageFormat
+        /// </summary>
+        /// <param name="format">The format to convert</param>
+        /// <returns>The System.Drawing.Common equivalent ImageFormat</returns>
         public static ImageFormat GetFormat(ImageFileFormat format)
         {
             if (format == ImageFileFormat.Jpeg)

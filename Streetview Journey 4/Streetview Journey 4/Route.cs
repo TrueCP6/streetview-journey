@@ -14,23 +14,45 @@ using static StreetviewJourney.Enums;
 
 namespace StreetviewJourney
 {
+    /// <summary>
+    /// Used for storing, saving and modifying point sequences
+    /// </summary>
     public class Route
     {
+        /// <summary>
+        /// Creates a new Route object
+        /// </summary>
         public Route() { }
 
+        /// <summary>
+        /// Creates a new Route object from a file path
+        /// </summary>
+        /// <param name="filePath">The path of the gpx or svj file</param>
         public Route(string filePath)
         {
             Route rt = FromFile(filePath);
             Points = rt.Points;
         }
 
+        /// <summary>
+        /// Creates a new Route object from a Point array
+        /// </summary>
+        /// <param name="points">The point array to create the Route from</param>
         public Route(Point[] points)
         {
             Points = points;
         }
 
+        /// <summary>
+        /// The points making up the Route
+        /// </summary>
         public Point[] Points;
 
+        /// <summary>
+        /// Creates a Route from an svj file
+        /// </summary>
+        /// <param name="path">The svj file path</param>
+        /// <returns>A Route created from an svj file</returns>
         public static Route FromSVJ(string path)
         {
             string[] svj = File.ReadAllLines(path);
@@ -44,6 +66,11 @@ namespace StreetviewJourney
             return rt;
         }
 
+        /// <summary>
+        /// Creates a Route from a gpx file
+        /// </summary>
+        /// <param name="path">The path to the gpx file</param>
+        /// <returns>A route created from a gpx file</returns>
         public static Route FromGPX(string path)
         {
             string[] gpx = File.ReadAllLines(path);
@@ -64,6 +91,11 @@ namespace StreetviewJourney
             return rt;
         }
 
+        /// <summary>
+        /// Creates a Route from a gpx or svj file
+        /// </summary>
+        /// <param name="path">The file path</param>
+        /// <returns>A Route created from a gpx or svj file</returns>
         public static Route FromFile(string path)
         {
             if (path.EndsWith(".gpx"))
@@ -74,6 +106,10 @@ namespace StreetviewJourney
                 throw new FileLoadException("Unrecognised file type. Use a .gpx or .svj file instead.");
         }
 
+        /// <summary>
+        /// A string containing every point in the Route
+        /// </summary>
+        /// <returns>A string containing every point in the Route</returns>
         public override string ToString()
         {
             string points = "";
@@ -84,6 +120,10 @@ namespace StreetviewJourney
 
         public static implicit operator string(Route rt) => rt.ToString();
 
+        /// <summary>
+        /// Gets the bearings for every Point in the Route
+        /// </summary>
+        /// <returns>A new Route</returns>
         public Route GetBearings()
         {
             Point[] pts = Points;
@@ -93,6 +133,11 @@ namespace StreetviewJourney
             return new Route(pts);
         }
 
+        /// <summary>
+        /// Gets the position of the nearest panorama for every point
+        /// </summary>
+        /// <param name="searchRadius">The radius to search for each point in meters</param>
+        /// <returns>A new Route</returns>
         public Route Exact(int searchRadius = 50)
         {
             Point[] pts = Points;
@@ -114,9 +159,18 @@ namespace StreetviewJourney
         private static Point[] RemoveUnusablePoints(Point[] pts) =>
             pts.Where(pt => pt.usable).ToArray();
 
+        /// <summary>
+        /// Removes all duplicate points
+        /// </summary>
+        /// <returns>A new Route</returns>
         public Route RemoveDuplicates() =>
             new Route(Points.Distinct().ToArray());
 
+        /// <summary>
+        /// Trims the points to a new length
+        /// </summary>
+        /// <param name="trimTo">The new length</param>
+        /// <returns></returns>
         public Route Trim(int trimTo)
         {
             Point[] trimmed = new Point[trimTo];
@@ -126,6 +180,9 @@ namespace StreetviewJourney
             return new Route(trimmed);
         }
 
+        /// <summary>
+        /// The total distance in meters the length of the Route covers
+        /// </summary>
         public double TotalDistance
         {
             get
@@ -137,11 +194,18 @@ namespace StreetviewJourney
             }
         }
 
+        /// <summary>
+        /// The average distance in meters between 2 points
+        /// </summary>
         public double AverageDistance
         {
             get => TotalDistance / Points.Length;
         }
 
+        /// <summary>
+        /// Saves the Route's points to an svj file 
+        /// </summary>
+        /// <param name="filePath">The path of the svj file to save as</param>
         public void Save(string filePath)
         {
             List<string> str = new List<string>();
@@ -153,11 +217,19 @@ namespace StreetviewJourney
             File.WriteAllLines(filePath, str.ToArray());
         }
 
+        /// <summary>
+        /// The amount of points the Route contains
+        /// </summary>
         public int Length
         {
             get => Points.Length;
         }
 
+        /// <summary>
+        /// Smoothes out the bearings of a Route according to an int value
+        /// </summary>
+        /// <param name="smoothValue">The amount of bearings to smooth together</param>
+        /// <returns>A new Route</returns>
         public Route SmoothBearings(int smoothValue)
         {
             Point[] points = Points;
@@ -166,8 +238,15 @@ namespace StreetviewJourney
             return new Route(points);
         }
 
+        /// <summary>
+        /// The maximum amount the bearings can be smoothed
+        /// </summary>
         public static int MaximumSmooth = 10;
 
+        /// <summary>
+        /// Determines a smooth value and smoothes out the bearings of the Route according to it
+        /// </summary>
+        /// <returns>A new Route</returns>
         public Route SmoothBearings()
         {
             double[] difference = new double[Length];
@@ -194,6 +273,11 @@ namespace StreetviewJourney
             return SmoothBearings((int)Math.Round(maxSmooths.Average()));
         }
 
+        /// <summary>
+        /// Calculates the bearings for an entire Route to face a certain point
+        /// </summary>
+        /// <param name="trackedPoint">The point to track</param>
+        /// <returns>A new Route</returns>
         public Route TrackPoint(Point trackedPoint)
         {
             Point[] pts = Points;
@@ -202,9 +286,18 @@ namespace StreetviewJourney
             return new Route(pts);
         }
 
+        /// <summary>
+        /// Reverses the order of the points in the Route
+        /// </summary>
+        /// <returns>A new Route</returns>
         public Route Reverse() =>
             new Route(Points.Reverse().ToArray());
 
+        /// <summary>
+        /// Whether all the points in the Route have a panorama within the defined search radius
+        /// </summary>
+        /// <param name="searchRadius">The radius to search in meters for each point</param>
+        /// <returns>A new Route</returns>
         public bool AllUsable(int searchRadius = 50)
         {
             bool usable = true;
@@ -218,6 +311,12 @@ namespace StreetviewJourney
             return usable;
         }
 
+        /// <summary>
+        /// Interpolates new points between the existing points of the Route
+        /// </summary>
+        /// <param name="desiredMperPoint">The average distance between points to aim for in meters</param>
+        /// <param name="searchRadius">The radius in meters to search for each point</param>
+        /// <returns>A new Route</returns>
         public Route Interpolate(double desiredMperPoint, int searchRadius = 50) =>
             new Route(InterpolateArray(Exact(searchRadius).Points, searchRadius, desiredMperPoint));
 
@@ -260,6 +359,11 @@ namespace StreetviewJourney
             return flat.Distinct().ToArray();
         }
 
+        /// <summary>
+        /// Smoothly trims the Route to a determined length
+        /// </summary>
+        /// <param name="trimTo">The desired new length of the Route</param>
+        /// <returns>A new Route</returns>
         public Route SmoothTrim(int trimTo)
         {
             double[] distances = new double[Length];
@@ -285,8 +389,18 @@ namespace StreetviewJourney
             return closest;
         }
 
+        /// <summary>
+        /// Attempts to bring the distance between points in the Route closer to the average
+        /// </summary>
+        /// <returns>A new Route</returns>
         public Route Smoothen() => SmoothTrim(Length);
 
+        /// <summary>
+        /// Gets the PanoID for each point of the Route
+        /// </summary>
+        /// <param name="firstParty">Whether the PanoIDs must be first party</param>
+        /// <param name="searchRadius">The radius in meters to search for each point</param>
+        /// <returns>A new Route</returns>
         public PanoID[] PanoIDs(bool firstParty = false, int searchRadius = 50)
         {
             PanoID[] ids = new PanoID[Length];
@@ -303,6 +417,11 @@ namespace StreetviewJourney
             return ids.Where(id => id.ID != null).ToArray();
         }
 
+        /// <summary>
+        /// Creates a Route from an array of PanoIDs
+        /// </summary>
+        /// <param name="panoIDs">The PanoIDs to create the Route from</param>
+        /// <param name="searchRadius">The radius in meters to search for each point</param>
         public Route(PanoID[] panoIDs, int searchRadius = 50)
         {
             Point[] pts = new Point[panoIDs.Length];
@@ -320,6 +439,15 @@ namespace StreetviewJourney
             Points = RemoveUnusablePoints(pts);
         }
 
+        /// <summary>
+        /// Downloads and saves a 360 equirectangular image for every point
+        /// </summary>
+        /// <param name="folder">The ImageFolder where the images should be saved to</param>
+        /// <param name="format">The image format to save the images as</param>
+        /// <param name="res">The resolution to save the images as with an aspect ratio of 2:1</param>
+        /// <param name="searchRadius">The radius in meters to search for each poin</param>
+        /// <param name="parallel">Whether to run in parallel. Setting this as true will use significantly more memory but take less time to complete</param>
+        /// <returns>The ImageFolder containing all the saved images</returns>
         public ImageFolder DownloadAllPanoramas(ImageFolder folder, ImageFileFormat format, Resolution res, int searchRadius = 50, bool parallel = true)
         {
             PanoID[] ids = PanoIDs(true, searchRadius);
@@ -342,6 +470,15 @@ namespace StreetviewJourney
             return folder;
         }
 
+        /// <summary>
+        /// Downloads an image for every point in the Route using the Static Streetview API
+        /// </summary>
+        /// <param name="folder">The folder to save the images to</param>
+        /// <param name="res">The desired output resolution of each image</param>
+        /// <param name="fov">The field of view of each image</param>
+        /// <param name="pitch">The pitch of each image</param>
+        /// <param name="parallel">Whether to run the process in parallel</param>
+        /// <returns>The folder where all the images were saved</returns>
         public ImageFolder DownloadAllImages(ImageFolder folder, Resolution res, int fov, double pitch, bool parallel = true)
         {
             if (Setup.DontBillMe)
@@ -363,6 +500,15 @@ namespace StreetviewJourney
             return folder;
         }
 
+        /// <summary>
+        /// Saves an image for every point in the Route using a Firefox window
+        /// </summary>
+        /// <param name="folder">The folder to save the images to</param>
+        /// <param name="res">The output resolution of each image</param>
+        /// <param name="maxWindows">The maximum amount of windows to open at once. Higher uses more memory but will complete faster</param>
+        /// <param name="pitch">The pitch in angles for each image to face</param>
+        /// <param name="format">The format of the output images</param>
+        /// <returns>The folder where all the images were saved</returns>
         public ImageFolder DownloadAllScreenshots(ImageFolder folder, Resolution res, int maxWindows = 1, double pitch = 0, ImageFileFormat format = ImageFileFormat.Jpeg)
         {
             if (!File.Exists(Setup.GeckodriverPath))
@@ -444,6 +590,10 @@ namespace StreetviewJourney
             }
         }
 
+        /// <summary>
+        /// Removes all third party panoramas from the Route
+        /// </summary>
+        /// <returns>A new Route</returns>
         public Route RemoveThirdPartyPanoramas()
         {
             Point[] pts = Points;

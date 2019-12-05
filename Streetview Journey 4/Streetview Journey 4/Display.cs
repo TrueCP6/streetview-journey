@@ -22,6 +22,11 @@ namespace StreetviewJourney
             Stretched
         }
 
+        /// <summary>
+        /// Sets the user's desktop wallpaper
+        /// </summary>
+        /// <param name="path">The path of the desired image</param>
+        /// <param name="style">The way the wallpaper is displayed</param>
         public static void SetWallpaper(string path, Style style)
         {
             Microsoft.Win32.RegistryKey key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop", true);

@@ -5,10 +5,21 @@ using System.Net;
 
 namespace StreetviewJourney
 {
+    /// <summary>
+    /// Used for storing latitude and longitude values
+    /// </summary>
     public class Point
     {
+        /// <summary>
+        /// Creates a new point at 0, 0
+        /// </summary>
         public Point() : this(0, 0) { }
 
+        /// <summary>
+        /// Creates a new point from a latitude and longitude value
+        /// </summary>
+        /// <param name="lat">Latitude</param>
+        /// <param name="lon">Longitude</param>
         public Point(double lat, double lon)
         {
             Latitude = lat;
@@ -16,6 +27,12 @@ namespace StreetviewJourney
             Bearing = new Bearing();
         }
 
+        /// <summary>
+        /// Creates a new point from a latitude, longitude and bearing
+        /// </summary>
+        /// <param name="lat">Latitude</param>
+        /// <param name="lon">Longitude</param>
+        /// <param name="bearing">Bearing</param>
         public Point(double lat, double lon, Bearing bearing)
         {
             Latitude = lat;
@@ -23,23 +40,43 @@ namespace StreetviewJourney
             Bearing = bearing;
         }
 
+        /// <summary>
+        /// The Latitude value of the point
+        /// </summary>
         public double Latitude;
+        /// <summary>
+        /// The Longitude value of the point
+        /// </summary>
         public double Longitude;
+        /// <summary>
+        /// The bearing of the point
+        /// </summary>
         public Bearing Bearing;
         internal bool usable = true;
 
+        /// <summary>
+        /// The Earth's radius in metres
+        /// </summary>
         private const double Radius = 6371000;
 
-        public static bool operator ==(Point left, Point right)
-        {
-            return (left.Latitude == right.Latitude) && (left.Longitude == right.Longitude);
-        }
+        /// <summary>
+        /// Whether 2 points have the same position
+        /// </summary>
+        public static bool operator ==(Point left, Point right) =>
+            (left.Latitude == right.Latitude) && (left.Longitude == right.Longitude);
 
-        public static bool operator !=(Point left, Point right)
-        {
-            return (left.Latitude != right.Latitude) || (left.Longitude != right.Longitude);
-        }
+        /// <summary>
+        /// Whether 2 points do not have the same position
+        /// </summary>
+        public static bool operator !=(Point left, Point right) =>
+            (left.Latitude != right.Latitude) || (left.Longitude != right.Longitude);
 
+        /// <summary>
+        /// Gets a point a fraction along a straight line drawn from the point to the end point
+        /// </summary>
+        /// <param name="endPoint">The end point where the fraction is 1</param>
+        /// <param name="fraction">A value from 0 to 1</param>
+        /// <returns>A new point</returns>
         public Point LinearInterpolate(Point endPoint, double fraction)
         {
             if (fraction < 0 || fraction > 1)
@@ -59,6 +96,12 @@ namespace StreetviewJourney
             return new Point(lat3 * (180 / Math.PI), lon3 * (180 / Math.PI));
         }
 
+        /// <summary>
+        /// Calculates the resultant point if given a starting point, distance and bearing 
+        /// </summary>
+        /// <param name="distance">The distance in metres</param>
+        /// <param name="bearing">The direction</param>
+        /// <returns>A new point</returns>
         public Point Destination(double distance, Bearing bearing)
         {
             double φ1 = Latitude * (Math.PI / 180);
@@ -69,6 +112,11 @@ namespace StreetviewJourney
             return new Point(φ2 * (180 / Math.PI), λ2 * (180 / Math.PI));
         }
 
+        /// <summary>
+        /// Calculates the distance in metres between 2 points
+        /// </summary>
+        /// <param name="point">The end point</param>
+        /// <returns>The distance in metres</returns>
         public double DistanceTo(Point point)
         {
             double φ1 = Latitude * (Math.PI / 180.0);
@@ -81,6 +129,11 @@ namespace StreetviewJourney
             return Radius * c;
         }
 
+        /// <summary>
+        /// Gets the position of the nearest panorama inside the search radius
+        /// </summary>
+        /// <param name="searchRadius">The radius in metres to search</param>
+        /// <returns>A new point</returns>
         public Point Exact(int searchRadius = 50)
         {
             dynamic data;
@@ -93,6 +146,12 @@ namespace StreetviewJourney
             throw new MetadataQueryException(Convert.ToString(data.status) + ", " + Convert.ToString(data.error_message));
         }
 
+        /// <summary>
+        /// Gets the nearest panorama inside the search radius
+        /// </summary>
+        /// <param name="firstParty">Whether the panorama must be first party</param>
+        /// <param name="searchRadius">The radius in metres to search</param>
+        /// <returns>A new PanoID</returns>
         public PanoID PanoID(bool firstParty = false, int searchRadius = 50)
         {
             string url = "https://maps.googleapis.com/maps/api/streetview/metadata?location=" + Latitude + "," + Longitude + "&key=" + Setup.APIKey + "&radius=" + searchRadius;
@@ -108,6 +167,10 @@ namespace StreetviewJourney
             throw new MetadataQueryException(Convert.ToString(data.status) + ", " + Convert.ToString(data.error_message));
         }
 
+        /// <summary>
+        /// Whether there is a panorama within the search radius
+        /// </summary>
+        /// <param name="searchRadius">The radius in metres to search</param>
         public bool IsUsable(int searchRadius = 50)
         {
             dynamic data;
@@ -116,6 +179,10 @@ namespace StreetviewJourney
             return data.status == "OK";
         }
 
+        /// <summary>
+        /// Gets the position of a random panorama
+        /// </summary>
+        /// <returns></returns>
         public static Point RandomUsable()
         {
             bool success = false;
@@ -134,18 +201,39 @@ namespace StreetviewJourney
             return pt;
         }
 
+        /// <summary>
+        /// Gets a random point on Earth
+        /// </summary>
+        /// <returns>A new point</returns>
         public static Point Random()
         {
             Random rng = new Random();
             return new Point(0, rng.NextDouble() * 360 - 180).Destination(rng.NextDouble() * 10018750, new Bearing((rng.NextDouble() <= 0.5) ? 0 : 180));
         }
 
+        /// <summary>
+        /// The URL to the streetview page
+        /// </summary>
+        /// <param name="pitch"></param>
+        /// <returns>The streetview page URL</returns>
         public string StreetviewURL(Bearing bearing, double pitch) => 
             "http://maps.google.com/maps?q=&layer=c&cbll=" + Latitude + "," + Longitude + "&cbp=11," + bearing.Value + ",0,0," + pitch;
 
+        /// <summary>
+        /// The Static Image URL
+        /// </summary>
+        /// <param name="pitch"></param>
+        /// <param name="res"></param>
+        /// <param name="fov"></param>
+        /// <returns></returns>
         public string ImageURL(Bearing bearing, double pitch, Resolution res, int fov) =>
             URL.Sign("https://maps.googleapis.com/maps/api/streetview?size=" + res.Width + "x" + res.Height + "&location=" + Latitude + "," + Longitude + "&heading=" + bearing + "&pitch=" + pitch + "&fov=" + fov + "&key=" + Setup.APIKey, Setup.URLSigningSecret);
 
+        /// <summary>
+        /// Calculates the direction from one point to another
+        /// </summary>
+        /// <param name="point2">The end point</param>
+        /// <returns>A new bearing</returns>
         public Bearing BearingTo(Point point2)
         {
             double lat1 = Latitude * (Math.PI / 180.0);
@@ -158,10 +246,18 @@ namespace StreetviewJourney
             );
         }
 
+        /// <summary>
+        /// Writes out the point as "Latitude, Longitude"
+        /// </summary>
         public override string ToString() => Latitude + ", " + Longitude;
 
         public static implicit operator string(Point pt) => pt.ToString();
 
+        /// <summary>
+        /// The midpoint between 2 points
+        /// </summary>
+        /// <param name="point2">The second point</param>
+        /// <returns>A new point</returns>
         public Point Midpoint(Point point2)
         {
             double lat1 = Latitude * (Math.PI / 180.0);
@@ -175,6 +271,9 @@ namespace StreetviewJourney
             return new Point(lat3 * (180.0 / Math.PI), lon3 * (180.0 / Math.PI));
         }
 
+        /// <summary>
+        /// Whether the point is third party
+        /// </summary>
         public bool isThirdParty
         {
             get => PanoID(searchRadius: 1).isThirdParty;

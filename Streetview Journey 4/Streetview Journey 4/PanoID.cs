@@ -9,16 +9,33 @@ using System.Drawing.Imaging;
 
 namespace StreetviewJourney
 {
+    /// <summary>
+    /// Used for modifying and storing of panorama IDs
+    /// </summary>
     public class PanoID
     {
+        /// <summary>
+        /// The ID of the panorama
+        /// </summary>
         public string ID;
+
+        /// <summary>
+        /// Creates a new PanoID using a pano ID string
+        /// </summary>
+        /// <param name="id"></param>
         public PanoID(string id)
         {
             ID = id;
         }
 
+        /// <summary>
+        /// Creates a new PanoID with the ID of null
+        /// </summary>
         public PanoID() { }
 
+        /// <summary>
+        /// Whether the panorama was uploaded by a third party user
+        /// </summary>
         public bool isThirdParty { get =>
             ID.Length == 64;
         }
@@ -26,6 +43,11 @@ namespace StreetviewJourney
         public static bool operator ==(PanoID left, PanoID right) => left.ID == right.ID;
         public static bool operator !=(PanoID left, PanoID right) => left.ID != right.ID;
 
+        /// <summary>
+        /// Gets the position of the PanoID
+        /// </summary>
+        /// <param name="searchRadius">The radius in meters to search</param>
+        /// <returns>The position of the PanoID</returns>
         public Point Exact(int searchRadius = 50)
         {
             dynamic data;
@@ -38,6 +60,11 @@ namespace StreetviewJourney
             throw new MetadataQueryException(Convert.ToString(data.status) + ", " + Convert.ToString(data.error_message));
         }
 
+        /// <summary>
+        /// Whether the panorama is usable or not
+        /// </summary>
+        /// <param name="searchRadius">The radius in meters to search</param>
+        /// <returns></returns>
         public bool IsUsable(int searchRadius = 50)
         {
             dynamic data;
@@ -46,12 +73,28 @@ namespace StreetviewJourney
             return data.status == "OK";
         }
 
-        public string ThumbnailURL(int width, int height) =>
-            "http://maps.google.com/cbk?output=thumbnail&w=" + width + "&h=" + height + "&panoid=" + ID;
+        /// <summary>
+        /// Gets the URL to a low resolution image of the URL
+        /// </summary>
+        /// <param name="res">The desired resolution of the image</param>
+        /// <returns>The URL to the thumbnail image</returns>
+        public string ThumbnailURL(Resolution res) =>
+            "http://maps.google.com/cbk?output=thumbnail&w=" + res.Width + "&h=" + res.Height + "&panoid=" + ID;
 
+        /// <summary>
+        /// Gets the URL to a specific tile for a panorama
+        /// </summary>
+        /// <param name="x">The x coordinate of the tile</param>
+        /// <param name="y">The y coordinate of the tile</param>
+        /// <param name="zoomLevel">The zoom level quality which determines the maximum amount of tiles</param>
+        /// <returns>The URL to a specific tile of a panorama</returns>
         public string TileURL(int x, int y, int zoomLevel = 5) =>
             "http://maps.google.com/cbk?output=tile&panoid=" + ID + "&zoom=" + zoomLevel + "&x=" + x + "&y=" + y;
 
+        /// <summary>
+        /// Gets an equirectangular bitmap image of the current panorama
+        /// </summary>
+        /// <returns>An equirectangular bitmap image of the panorama</returns>
         public Bitmap DownloadPanorama()
         {
             if (isThirdParty)
@@ -67,7 +110,7 @@ namespace StreetviewJourney
                 });
             });
 
-            Bitmap result = new Bitmap(26 * 512, 13 * 512);
+            Bitmap result = new Bitmap(Resolution.DefaultPanoramaResolution.Width, Resolution.DefaultPanoramaResolution.Height);
             for (int x = 0; x < 26; x++)
             {
                 for (int y = 0; y < 13; y++)
@@ -81,6 +124,11 @@ namespace StreetviewJourney
             return result;
         }
 
+        /// <summary>
+        /// Gets an equirectangular bitmap image of the current panorama at a specific resolution
+        /// </summary>
+        /// <param name="res">The desired output resolution</param>
+        /// <returns>An equirectangular bitmap image of the panorama</returns>
         public Bitmap DownloadPanorama(Resolution res)
         {
             var destRect = new Rectangle(0, 0, res.Width, res.Height);
@@ -109,6 +157,11 @@ namespace StreetviewJourney
             return destImage;
         }
 
+        /// <summary>
+        /// Gets a random usable panorama from a random spot on Earth
+        /// </summary>
+        /// <param name="firstParty">Whether the panorama must be first party</param>
+        /// <returns>A random PanoID</returns>
         public static PanoID RandomUsable(bool firstParty = false)
         {
             Random rng = new Random();
@@ -128,6 +181,9 @@ namespace StreetviewJourney
             return id;
         }
 
+        /// <summary>
+        /// The ID of the panorama
+        /// </summary>
         public override string ToString() => ID;
 
         public static implicit operator string(PanoID id) => id.ToString();

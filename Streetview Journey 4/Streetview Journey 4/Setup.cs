@@ -8,6 +8,9 @@ using Xabe.FFmpeg;
 
 namespace StreetviewJourney
 {
+    /// <summary>
+    /// Various settings that allows this library to function
+    /// </summary>
     public class Setup
     {
         static Setup()
@@ -16,6 +19,12 @@ namespace StreetviewJourney
             FFmpegExecutablesFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\ffmpeg"; //workaround to initialize FFmpegExecutablesFolder
         }
 
+        /// <summary>
+        /// Sets all the required information needed to make queries to the Static Streetview API
+        /// </summary>
+        /// <param name="dontBillMe">If true all methods that get billed by Google will throw an exception</param>
+        /// <param name="apiKey">Your Static Streetview API Key</param>
+        /// <param name="urlSigningSecret">Your Static Streetview API URL Signing Secret</param>
         public static void SetStaticStreetviewAPIInfo(bool dontBillMe, string apiKey, string urlSigningSecret)
         {
             DontBillMe = dontBillMe;
@@ -23,28 +32,49 @@ namespace StreetviewJourney
             URLSigningSecret = urlSigningSecret;
         }
 
+        /// <summary>
+        /// If true all methods that get billed by Google will throw an exception
+        /// </summary>
         public static bool DontBillMe;
 
+        /// <summary>
+        /// Your Static Streetview API Key
+        /// </summary>
         public static string APIKey;
 
+        /// <summary>
+        /// Your Static Streetview API URL Signing Secret
+        /// </summary>
         public static string URLSigningSecret;
 
+        /// <summary>
+        /// The directory containing your FFmpeg executables
+        /// </summary>
         public static string FFmpegExecutablesFolder
         {
             get => FFmpeg.ExecutablesPath;
             set => FFmpeg.ExecutablesPath = value;
         }
 
+        /// <summary>
+        /// The path to geckodriver.exe
+        /// </summary>
         public static string GeckodriverPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\geckodriver.exe";
 
+        /// <summary>
+        /// Downloads the latest version of FFmpeg to your FFmpegExecutablesFolder
+        /// </summary>
         public static void DownloadFFmpeg()
         {
             FFmpeg.GetLatestVersion(true).Wait();
         }
 
+        /// <summary>
+        /// Downloads the latest version of geckodriver.exe to your GeckodriverPath
+        /// </summary>
         public static void DownloadGeckodriver()
         {
-            //find the latest version of geckodriver
+            //find the latest version of geckodriver using Github API
             HttpWebRequest req = WebRequest.Create("https://api.github.com/repos/mozilla/geckodriver/releases") as HttpWebRequest;
             req.UserAgent = Environment.UserName;
             dynamic data;
