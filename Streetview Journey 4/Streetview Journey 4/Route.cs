@@ -30,8 +30,7 @@ namespace StreetviewJourney
         /// <param name="filePath">The path of the gpx or svj file</param>
         public Route(string filePath)
         {
-            Route rt = FromFile(filePath);
-            Points = rt.Points;
+            Points = FromFile(filePath).Points;
         }
 
         /// <summary>
@@ -134,18 +133,19 @@ namespace StreetviewJourney
         }
 
         /// <summary>
-        /// Gets the position of the nearest panorama for every point
+        /// Gets the position of the nearest panorama within the search radius for every point
         /// </summary>
-        /// <param name="searchRadius">The radius to search for each point in meters</param>
+        /// <param name="firstParty">Whether each point must be first party</param>
+        /// <param name="searchRadius">The radius in metres to search</param>
         /// <returns>A new Route</returns>
-        public Route Exact(int searchRadius = 50)
+        public Route Exact(bool firstParty = false, int searchRadius = 50)
         {
             Point[] pts = Points;
             Parallel.For(0, pts.Length, i =>
             {
                 try
                 {
-                    pts[i] = pts[i].Exact(searchRadius);
+                    pts[i] = pts[i].Exact(firstParty, searchRadius);
                 }
                 catch (ZeroResultsException)
                 {
@@ -174,7 +174,7 @@ namespace StreetviewJourney
         public Route Trim(int trimTo)
         {
             Point[] trimmed = new Point[trimTo];
-            double modifier = (double)Points.Length / (double)trimTo;
+            double modifier = (double)Length / (double)trimTo;
             for (int i = 0; i < trimTo; i++)
                 trimmed[i] = Points[(int)Math.Round(i * modifier)];
             return new Route(trimmed);
@@ -195,12 +195,10 @@ namespace StreetviewJourney
         }
 
         /// <summary>
-        /// The average distance in meters between 2 points
+        /// The average distance in meters between each point
         /// </summary>
-        public double AverageDistance
-        {
-            get => TotalDistance / Points.Length;
-        }
+        public double AverageDistance =>
+            TotalDistance / Points.Length;
 
         /// <summary>
         /// Saves the Route's points to an svj file 
@@ -239,7 +237,7 @@ namespace StreetviewJourney
         }
 
         /// <summary>
-        /// The maximum amount the bearings can be smoothed
+        /// The maximum amount of bearings that can be smoothed into eachother. Has a default of 10.
         /// </summary>
         public static int MaximumSmooth = 10;
 
@@ -297,12 +295,13 @@ namespace StreetviewJourney
         /// Whether all the points in the Route have a panorama within the defined search radius
         /// </summary>
         /// <param name="searchRadius">The radius to search in meters for each point</param>
+        /// <param name="firstParty">Whether each point must be first party</param>
         /// <returns>A new Route</returns>
-        public bool AllUsable(int searchRadius = 50)
+        public bool AllUsable(bool firstParty = false, int searchRadius = 50)
         {
             bool usable = true;
             Parallel.ForEach(Points, (pt, state) => {
-                if (!pt.IsUsable(searchRadius))
+                if (!pt.IsUsable(firstParty, searchRadius))
                 {
                     usable = false;
                     state.Break();
@@ -312,15 +311,16 @@ namespace StreetviewJourney
         }
 
         /// <summary>
-        /// Interpolates new points between the existing points of the Route
+        /// Interpolates points between each point to attempt to reach the desired metres per point
         /// </summary>
-        /// <param name="desiredMperPoint">The average distance between points to aim for in meters</param>
-        /// <param name="searchRadius">The radius in meters to search for each point</param>
+        /// <param name="desiredMperPoint">The desired metre distance between each point</param>
+        /// <param name="firstParty">Whether each point must be third party</param>
+        /// <param name="searchRadius">The radius in metres to search for each point</param>
         /// <returns>A new Route</returns>
-        public Route Interpolate(double desiredMperPoint, int searchRadius = 50) =>
-            new Route(InterpolateArray(Exact(searchRadius).Points, searchRadius, desiredMperPoint));
+        public Route Interpolate(double desiredMperPoint, bool firstParty = false, int searchRadius = 50) =>
+            new Route(InterpolateArray(Exact(firstParty, searchRadius).Points, searchRadius, desiredMperPoint, firstParty));
 
-        private static Point[] InterpolateArray(Point[] arr, int searchRadius, double mpp)
+        private static Point[] InterpolateArray(Point[] arr, int searchRadius, double mpp, bool firstParty)
         {
             Point[][] jPts = new Point[arr.Length][];
             Parallel.For(0, jPts.Length - 1, a =>
@@ -330,7 +330,7 @@ namespace StreetviewJourney
                     Point exactMid = new Point(); //this 0, 0 point wont be used (only to stop an error)
                     try
                     {
-                        exactMid = arr[a].Midpoint(arr[a + 1]).Exact(searchRadius);
+                        exactMid = arr[a].Midpoint(arr[a + 1]).Exact(firstParty, searchRadius);
                     }
                     catch (ZeroResultsException) //if there are no panoramas found between in the search radius
                     {
@@ -344,7 +344,7 @@ namespace StreetviewJourney
                         return;
                     }
 
-                    jPts[a] = InterpolateArray(new Point[] { arr[a], exactMid, arr[a + 1] }, searchRadius, mpp);
+                    jPts[a] = InterpolateArray(new Point[] { arr[a], exactMid, arr[a + 1] }, searchRadius, mpp, firstParty);
                 }
                 else
                     jPts[a] = new Point[] { arr[a], arr[a + 1] };
@@ -390,7 +390,7 @@ namespace StreetviewJourney
         }
 
         /// <summary>
-        /// Attempts to bring the distance between points in the Route closer to the average
+        /// Attempts to bring the distance between points in the Route closer to the average. May result in more duplicate points
         /// </summary>
         /// <returns>A new Route</returns>
         public Route Smoothen() => SmoothTrim(Length);
@@ -421,14 +421,13 @@ namespace StreetviewJourney
         /// Creates a Route from an array of PanoIDs
         /// </summary>
         /// <param name="panoIDs">The PanoIDs to create the Route from</param>
-        /// <param name="searchRadius">The radius in meters to search for each point</param>
-        public Route(PanoID[] panoIDs, int searchRadius = 50)
+        public Route(PanoID[] panoIDs)
         {
             Point[] pts = new Point[panoIDs.Length];
             Parallel.For(0, pts.Length, i => {
                 try
                 {
-                    pts[i] = panoIDs[i].Exact(searchRadius);
+                    pts[i] = panoIDs[i].Position;
                 }
                 catch (ZeroResultsException)
                 {
@@ -488,14 +487,14 @@ namespace StreetviewJourney
             {
                 Parallel.For(0, Length, i=> {
                     using (WebClient client = new WebClient())
-                        client.DownloadFile(Points[i].ImageURL(Points[i].Bearing, pitch, res, fov), folder.Path + "image" + i + ".png");
+                        client.DownloadFile(Points[i].ImageURL(pitch, res, fov), folder.Path + "image" + i + ".png");
                 });
             }
             else
             {
                 for (int i = 0; i < Length; i++)
                     using (WebClient client = new WebClient())
-                        client.DownloadFile(Points[i].ImageURL(Points[i].Bearing, pitch, res, fov), folder.Path + "image" + i + ".png");
+                        client.DownloadFile(Points[i].ImageURL(pitch, res, fov), folder.Path + "image" + i + ".png");
             }
             return folder;
         }
@@ -536,7 +535,7 @@ namespace StreetviewJourney
 
                 for (int b = a; b < rt.Length; b += maxWindows)
                 {
-                    drivers[a].Navigate().GoToUrl(rt.Points[b].StreetviewURL(rt.Points[b].Bearing, pitch));
+                    drivers[a].Navigate().GoToUrl(rt.Points[b].StreetviewURL(pitch));
 
                     Wait(drivers[a]);
 

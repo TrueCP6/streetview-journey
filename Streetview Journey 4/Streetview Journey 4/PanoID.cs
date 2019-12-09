@@ -36,41 +36,42 @@ namespace StreetviewJourney
         /// <summary>
         /// Whether the panorama was uploaded by a third party user
         /// </summary>
-        public bool isThirdParty { get =>
+        public bool isThirdParty =>
             ID.Length == 64;
-        }
 
         public static bool operator ==(PanoID left, PanoID right) => left.ID == right.ID;
         public static bool operator !=(PanoID left, PanoID right) => left.ID != right.ID;
 
         /// <summary>
-        /// Gets the position of the PanoID
+        /// The position of the panorama
         /// </summary>
-        /// <param name="searchRadius">The radius in meters to search</param>
-        /// <returns>The position of the PanoID</returns>
-        public Point Exact(int searchRadius = 50)
+        public Point Position
         {
-            dynamic data;
-            using (WebClient client = new WebClient())
-                data = JsonConvert.DeserializeObject(client.DownloadString(URL.Sign("https://maps.googleapis.com/maps/api/streetview/metadata?pano=" + ID + "&key=" + Setup.APIKey + "&radius=" + searchRadius, Setup.URLSigningSecret)));
-            if (data.status == "OK")
-                return new Point(Convert.ToDouble(data.location.lat), Convert.ToDouble(data.location.lng));
-            if (data.status == "ZERO_RESULTS")
-                throw new ZeroResultsException("No matching panoramas could be found within the search radius.");
-            throw new MetadataQueryException(Convert.ToString(data.status) + ", " + Convert.ToString(data.error_message));
+            get
+            {
+                dynamic data = JsonConvert.DeserializeObject(JsonMetadata);
+                if (data.status == "OK")
+                    return new Point(Convert.ToDouble(data.location.lat), Convert.ToDouble(data.location.lng));
+                if (data.status == "ZERO_RESULTS")
+                    throw new ZeroResultsException("Panorama could not be found.");
+                throw new MetadataQueryException(Convert.ToString(data.status) + ", " + Convert.ToString(data.error_message));
+            }
         }
 
         /// <summary>
-        /// Whether the panorama is usable or not
+        /// Whether the panorama is valid
         /// </summary>
-        /// <param name="searchRadius">The radius in meters to search</param>
-        /// <returns></returns>
-        public bool IsUsable(int searchRadius = 50)
+        public bool IsUsable
         {
-            dynamic data;
-            using (WebClient client = new WebClient())
-                data = JsonConvert.DeserializeObject(client.DownloadString(URL.Sign("https://maps.googleapis.com/maps/api/streetview/metadata?pano=" + ID + "&key=" + Setup.APIKey + "&radius=" + searchRadius, Setup.URLSigningSecret)));
-            return data.status == "OK";
+            get
+            {
+                dynamic data = JsonConvert.DeserializeObject(JsonMetadata);
+                if (data.status == "OK")
+                    return true;
+                if (data.status == "ZERO_RESULTS")
+                    return false;
+                throw new MetadataQueryException(Convert.ToString(data.status) + ", " + Convert.ToString(data.error_message));
+            }
         }
 
         /// <summary>
@@ -78,8 +79,12 @@ namespace StreetviewJourney
         /// </summary>
         /// <param name="res">The desired resolution of the image</param>
         /// <returns>The URL to the thumbnail image</returns>
-        public string ThumbnailURL(Resolution res) =>
-            "http://maps.google.com/cbk?output=thumbnail&w=" + res.Width + "&h=" + res.Height + "&panoid=" + ID;
+        public string ThumbnailURL(Resolution res)
+        {
+            if (isThirdParty)
+                throw new ThirdPartyPanoramaException("This method can only be used with first party panoramas.");
+            return "http://maps.google.com/cbk?output=thumbnail&w=" + res.Width + "&h=" + res.Height + "&panoid=" + ID;
+        }
 
         /// <summary>
         /// Gets the URL to a specific tile for a panorama
@@ -88,8 +93,18 @@ namespace StreetviewJourney
         /// <param name="y">The y coordinate of the tile</param>
         /// <param name="zoomLevel">The zoom level quality which determines the maximum amount of tiles</param>
         /// <returns>The URL to a specific tile of a panorama</returns>
-        public string TileURL(int x, int y, int zoomLevel = 5) =>
-            "http://maps.google.com/cbk?output=tile&panoid=" + ID + "&zoom=" + zoomLevel + "&x=" + x + "&y=" + y;
+        public string TileURL(int x, int y, int zoomLevel = 5)
+        {
+            if (isThirdParty)
+                throw new ThirdPartyPanoramaException("This method can only be used with first party panoramas.");
+            if (x < 0 || x > 25)
+                throw new ArgumentOutOfRangeException("x", "Must be from 0 to 25");
+            if (y < 0 || y > 12)
+                throw new ArgumentOutOfRangeException("y", "Must be from 0 to 13");
+            if (zoomLevel < 0 || zoomLevel > 5)
+                throw new ArgumentOutOfRangeException("zoomLevel", "Must be from 0 to 5");
+            return "http://maps.google.com/cbk?output=tile&panoid=" + ID + "&zoom=" + zoomLevel + "&x=" + x + "&y=" + y;
+        }
 
         /// <summary>
         /// Gets an equirectangular bitmap image of the current panorama
@@ -98,7 +113,7 @@ namespace StreetviewJourney
         public Bitmap DownloadPanorama()
         {
             if (isThirdParty)
-                throw new ThirdPartyPanoramaException("DownloadPanorama can only be used with first party panoramas.");
+                throw new ThirdPartyPanoramaException("This method can only be used with first party panoramas.");
 
             Image[,] images = new Image[26, 13];
             Parallel.For(0, 26, x =>
@@ -106,7 +121,8 @@ namespace StreetviewJourney
                 Parallel.For(0, 13, y =>
                 {
                     using (WebClient client = new WebClient())
-                        images[x, y] = Image.FromStream(new MemoryStream(client.DownloadData(TileURL(x, y))));
+                    using (MemoryStream stream = new MemoryStream(client.DownloadData(TileURL(x, y))))
+                        images[x, y] = Image.FromStream(stream);
                 });
             });
 
@@ -169,7 +185,7 @@ namespace StreetviewJourney
             PanoID id = new PanoID();
             while (!success)
             {
-                Point pt = new Point(0, rng.NextDouble() * 360 - 180).Destination(rng.NextDouble() * 10018750, new Bearing((rng.NextDouble() <= 0.5) ? 0 : 180));
+                Point pt = Point.Random();
                 try
                 {
                     id = pt.PanoID(firstParty, 500000);
@@ -177,7 +193,7 @@ namespace StreetviewJourney
                 }
                 catch (ZeroResultsException) { }
             }
-
+            
             return id;
         }
 
@@ -187,5 +203,36 @@ namespace StreetviewJourney
         public override string ToString() => ID;
 
         public static implicit operator string(PanoID id) => id.ToString();
+
+        /// <summary>
+        /// Gets the URL to the panorama's metadata
+        /// </summary>
+        public string MetadataURL =>
+            URL.Sign("https://maps.googleapis.com/maps/api/streetview/metadata?pano=" + ID);
+
+        /// <summary>
+        /// The json metadata of the panorama as a string
+        /// </summary>
+        public string JsonMetadata
+        {
+            get
+            {
+                string data;
+                using (WebClient client = new WebClient())
+                    data = client.DownloadString(MetadataURL);
+                return data;
+            }
+        }
+
+        /// <summary>
+        /// Gets the URL to the image of the PanoID
+        /// </summary>
+        /// <param name="bearing">The bearing of the image</param>
+        /// <param name="pitch">The pitch of the image</param>
+        /// <param name="res">The resolution of the image</param>
+        /// <param name="fov">The field of view of the image</param>
+        /// <returns>The Streetview Static API image URL</returns>
+        public string ImageURL(Bearing bearing, double pitch, Resolution res, int fov) =>
+            URL.Sign("https://maps.googleapis.com/maps/api/streetview?size=" + res.Width + "x" + res.Height + "&pano="+ ID + "&heading=" + bearing + "&pitch=" + pitch + "&fov=" + fov);
     }
 }

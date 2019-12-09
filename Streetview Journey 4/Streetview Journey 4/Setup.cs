@@ -15,7 +15,7 @@ namespace StreetviewJourney
     {
         static Setup()
         {
-            ServicePointManager.DefaultConnectionLimit = Environment.ProcessorCount * 12; //stops timeout crashes
+            ServicePointManager.DefaultConnectionLimit = Environment.ProcessorCount * 12; //stops timeout exceptions
             FFmpegExecutablesFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\ffmpeg"; //workaround to initialize FFmpegExecutablesFolder
         }
 

@@ -7,15 +7,21 @@ namespace StreetviewJourney
     public class URL
     {
         /// <summary>
-        /// Signs a url with a URL signing secret
+        /// Signs a url with a URL signing secret and adds the API Key
         /// </summary>
-        /// <param name="url">The url containing the API Key to sign</param>
-        /// <param name="urlSigningSecret">The URL Signing Secret to sign the URL with</param>
+        /// <param name="url">The url to sign without the API Key</param>
         /// <returns>The resultant URL</returns>
-        public static string Sign(string url, string urlSigningSecret) //code by google
+        public static string Sign(string url) //modified code by google
         {
+            if (Setup.APIKey.Length != 39)
+                throw new InvalidAuthenticationException("Invalid API Key.");
+            if (Setup.URLSigningSecret.Length != 28 || !Setup.URLSigningSecret.EndsWith("="))
+                throw new InvalidAuthenticationException("Invalid URL Signing Secret");
+
+            url = url.Replace("&key=" + Setup.APIKey, "");
+            url += "&key=" + Setup.APIKey;
             ASCIIEncoding encoding = new ASCIIEncoding();
-            string usablePrivateKey = urlSigningSecret.Replace("-", "+").Replace("_", "/");
+            string usablePrivateKey = Setup.URLSigningSecret.Replace("-", "+").Replace("_", "/");
             byte[] privateKeyBytes = Convert.FromBase64String(usablePrivateKey);
             Uri uri = new Uri(url);
             byte[] encodedPathAndQueryBytes = encoding.GetBytes(uri.LocalPath + uri.Query);

@@ -33,4 +33,13 @@ namespace StreetviewJourney
     {
         public DontBillMeException(string message) : base(message) { }
     }
+
+    /// <summary>
+    /// Thrown when the API Key or URL Signing Secret is invalid
+    /// </summary>
+    public class InvalidAuthenticationException : Exception
+    {
+        public InvalidAuthenticationException(string message) : base(message) { }
+    }
+
 }

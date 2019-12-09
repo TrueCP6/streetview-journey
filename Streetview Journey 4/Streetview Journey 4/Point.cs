@@ -130,15 +130,14 @@ namespace StreetviewJourney
         }
 
         /// <summary>
-        /// Gets the position of the nearest panorama inside the search radius
+        /// Gets the position of the nearest panorama within the search radius
         /// </summary>
-        /// <param name="searchRadius">The radius in metres to search</param>
-        /// <returns>A new point</returns>
-        public Point Exact(int searchRadius = 50)
+        /// <param name="firstParty">Whether the point must be a first party panorama</param>
+        /// <param name="searchRadius">The radius in metres to search for a panorama</param>
+        /// <returns>A new Point</returns>
+        public Point Exact(bool firstParty = false, int searchRadius = 50)
         {
-            dynamic data;
-            using (WebClient client = new WebClient())
-                data = JsonConvert.DeserializeObject(client.DownloadString(URL.Sign("https://maps.googleapis.com/maps/api/streetview/metadata?location=" + Latitude + "," + Longitude + "&key=" + Setup.APIKey + "&radius=" + searchRadius, Setup.URLSigningSecret)));
+            dynamic data = JsonConvert.DeserializeObject(JsonMetadata(firstParty, searchRadius));
             if (data.status == "OK")
                 return new Point(Convert.ToDouble(data.location.lat), Convert.ToDouble(data.location.lng));
             if (data.status == "ZERO_RESULTS")
@@ -147,19 +146,14 @@ namespace StreetviewJourney
         }
 
         /// <summary>
-        /// Gets the nearest panorama inside the search radius
+        /// Returns the PanoID of the nearest panorama within the search radius
         /// </summary>
-        /// <param name="firstParty">Whether the panorama must be first party</param>
-        /// <param name="searchRadius">The radius in metres to search</param>
+        /// <param name="firstParty">Whether the panorama must be a first party panorama</param>
+        /// <param name="searchRadius">The radius in metres to search for a panorama</param>
         /// <returns>A new PanoID</returns>
         public PanoID PanoID(bool firstParty = false, int searchRadius = 50)
         {
-            string url = "https://maps.googleapis.com/maps/api/streetview/metadata?location=" + Latitude + "," + Longitude + "&key=" + Setup.APIKey + "&radius=" + searchRadius;
-            if (firstParty)
-                url += "&source=outdoor";
-            dynamic data;
-            using (WebClient client = new WebClient())
-                data = JsonConvert.DeserializeObject(client.DownloadString(URL.Sign(url, Setup.URLSigningSecret)));
+            dynamic data = JsonConvert.DeserializeObject(JsonMetadata(firstParty, searchRadius));
             if (data.status == "OK")
                 return new PanoID(Convert.ToString(data.pano_id));
             if (data.status == "ZERO_RESULTS")
@@ -168,22 +162,26 @@ namespace StreetviewJourney
         }
 
         /// <summary>
-        /// Whether there is a panorama within the search radius
+        /// Whether there is a panorama in the search radius
         /// </summary>
+        /// <param name="firstParty">Whether the panoramas to search for must be first party</param>
         /// <param name="searchRadius">The radius in metres to search</param>
-        public bool IsUsable(int searchRadius = 50)
+        public bool IsUsable(bool firstParty = false, int searchRadius = 50)
         {
-            dynamic data;
-            using (WebClient client = new WebClient())
-                data = JsonConvert.DeserializeObject(client.DownloadString(URL.Sign("https://maps.googleapis.com/maps/api/streetview/metadata?location=" + Latitude + "," + Longitude + "&key=" + Setup.APIKey + "&radius=" + searchRadius, Setup.URLSigningSecret)));
-            return data.status == "OK";
+            dynamic data = JsonConvert.DeserializeObject(JsonMetadata(firstParty, searchRadius));
+            if (data.status == "OK")
+                return true;
+            if (data.status == "ZERO_RESULTS")
+                return false;
+            throw new MetadataQueryException(Convert.ToString(data.status) + ", " + Convert.ToString(data.error_message));
         }
 
         /// <summary>
         /// Gets the position of a random panorama
         /// </summary>
-        /// <returns></returns>
-        public static Point RandomUsable()
+        /// <param name="firstParty">Whether the panorama must be first party</param>
+        /// <returns>A new Point</returns>
+        public static Point RandomUsable(bool firstParty = false)
         {
             bool success = false;
             Point pt = new Point();
@@ -192,7 +190,7 @@ namespace StreetviewJourney
                 pt = Random();
                 try
                 {
-                    pt = pt.Exact(500000);
+                    pt = pt.Exact(firstParty, 500000);
                     success = true;
                 }
                 catch (ZeroResultsException) { }
@@ -212,22 +210,22 @@ namespace StreetviewJourney
         }
 
         /// <summary>
-        /// The URL to the streetview page
+        /// Gets the URL to the point's Streetview page
         /// </summary>
-        /// <param name="pitch"></param>
-        /// <returns>The streetview page URL</returns>
-        public string StreetviewURL(Bearing bearing, double pitch) => 
-            "http://maps.google.com/maps?q=&layer=c&cbll=" + Latitude + "," + Longitude + "&cbp=11," + bearing.Value + ",0,0," + pitch;
+        /// <param name="pitch">The starting pitch</param>
+        /// <returns>The URL to the page</returns>
+        public string StreetviewURL(double pitch) => 
+            "http://maps.google.com/maps?q=&layer=c&cbll=" + Latitude + "," + Longitude + "&cbp=11," + Bearing + ",0,0," + pitch;
 
         /// <summary>
-        /// The Static Image URL
+        /// The Streetview static API image URL
         /// </summary>
-        /// <param name="pitch"></param>
-        /// <param name="res"></param>
-        /// <param name="fov"></param>
-        /// <returns></returns>
-        public string ImageURL(Bearing bearing, double pitch, Resolution res, int fov) =>
-            URL.Sign("https://maps.googleapis.com/maps/api/streetview?size=" + res.Width + "x" + res.Height + "&location=" + Latitude + "," + Longitude + "&heading=" + bearing + "&pitch=" + pitch + "&fov=" + fov + "&key=" + Setup.APIKey, Setup.URLSigningSecret);
+        /// <param name="pitch">The pitch of the image</param>
+        /// <param name="res">The resolution of the image</param>
+        /// <param name="fov">The field of view of the image</param>
+        /// <returns>The Streetview static API image URL</returns>
+        public string ImageURL(double pitch, Resolution res, int fov, bool firstParty = false, int radius = 50) =>
+            URL.Sign("https://maps.googleapis.com/maps/api/streetview?size=" + res.Width + "x" + res.Height + "&location=" + Latitude + "," + Longitude + "&heading=" + Bearing + "&pitch=" + pitch + "&fov=" + fov + "&radius=" + radius + (firstParty ? "&source=outdoor" : ""));
 
         /// <summary>
         /// Calculates the direction from one point to another
@@ -277,6 +275,34 @@ namespace StreetviewJourney
         public bool isThirdParty
         {
             get => PanoID(searchRadius: 1).isThirdParty;
+        }
+
+        /// <summary>
+        /// Gets the URL to the point's metadata
+        /// </summary>
+        /// <param name="firstParty">Whether to search for first party panoramas</param>
+        /// <param name="searchRadius">The search radius in metres</param>
+        /// <returns>The URL of the metadata</returns>
+        public string MetadataURL(bool firstParty = false, int searchRadius = 50)
+        {
+            string url = "https://maps.googleapis.com/maps/api/streetview/metadata?location=" + Latitude + "," + Longitude + "&radius=" + searchRadius;
+            if (firstParty)
+                url += "&source=outdoor";
+            return URL.Sign(url);
+        }
+
+        /// <summary>
+        /// Gets the Json metadata of the point as a string
+        /// </summary>
+        /// <param name="firstParty">Whether the point must be first party</param>
+        /// <param name="searchRadius">The radius in metres to search</param>
+        /// <returns>The Json metadata as a string</returns>
+        public string JsonMetadata(bool firstParty = false, int searchRadius = 50)
+        {
+            string data;
+            using (WebClient client = new WebClient())
+                data = client.DownloadString(MetadataURL(firstParty, searchRadius));
+            return data;
         }
     }
 }
