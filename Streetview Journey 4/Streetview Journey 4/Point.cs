@@ -272,10 +272,8 @@ namespace StreetviewJourney
         /// <summary>
         /// Whether the point is third party
         /// </summary>
-        public bool isThirdParty
-        {
-            get => PanoID(searchRadius: 1).isThirdParty;
-        }
+        public bool isThirdParty =>
+            PanoID(searchRadius: 1).isThirdParty;
 
         /// <summary>
         /// Gets the URL to the point's metadata
