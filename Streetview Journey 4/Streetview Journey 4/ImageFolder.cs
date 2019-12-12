@@ -16,9 +16,25 @@ namespace StreetviewJourney
         public string Path;
 
         /// <summary>
-        /// Creates a new ImageFolder in a temporary location
+        /// The path of the outputted video
         /// </summary>
-        public ImageFolder() : this(System.IO.Path.GetTempPath() + @"Streetview Journey Temporary Image Folder\") { }
+        public string OutputVideoPath;
+
+        /// <summary>
+        /// Creates a new ImageFolder from the path and output video path given
+        /// </summary>
+        /// <param name="path">The path to the directory</param>
+        /// <param name="outputVideoPath">The desired output video path</param>
+        public ImageFolder(string path, string outputVideoPath)
+        {
+            Path = path;
+            if (!Path.EndsWith(@"\"))
+                Path += @"\";
+            if (!Directory.Exists(Path.Remove(Path.Length - 1)))
+                Directory.CreateDirectory(Path.Remove(Path.Length - 1));
+
+            OutputVideoPath = outputVideoPath;
+        }
 
         /// <summary>
         /// Creates a new ImageFolder from the path given
@@ -31,23 +47,23 @@ namespace StreetviewJourney
                 Path += @"\";
             if (!Directory.Exists(Path.Remove(Path.Length - 1)))
                 Directory.CreateDirectory(Path.Remove(Path.Length - 1));
+
+            OutputVideoPath = Path + "output.mp4";
         }
+
+        public ImageFolder() : this(System.IO.Path.GetTempPath() + @"Streetview Journey Temporary Image Folder\") { }
 
         /// <summary>
         /// An array of paths for every file in the ImageFolder
         /// </summary>
-        public string[] Files
-        {
-            get => Directory.GetFiles(Path);
-        }
+        public string[] Files =>
+            Directory.GetFiles(Path);
 
         /// <summary>
         /// The paths to all the images contained
         /// </summary>
-        public string[] ImagePaths
-        {
-            get => Files.Where(str => System.IO.Path.GetFileName(str).StartsWith("image")).ToArray();
-        }
+        public string[] ImagePaths =>
+            Files.Where(str => System.IO.Path.GetFileName(str).StartsWith("image")).ToArray();
 
         /// <summary>
         /// Saves a video from the images in the ImageFolder
@@ -56,9 +72,9 @@ namespace StreetviewJourney
         /// <param name="framerate">The desired framerate of the output video</param>
         /// <param name="outputVideoPath">The path including the file name and extension to the desired output video. e.g C:\dir\output.mp4</param>
         /// <param name="multithread">Whether to multithread the process</param>
-        public void SaveVideo(IConversion preset, double framerate, string outputVideoPath, bool multithread = true)
+        public void SaveVideo(IConversion preset, double framerate, bool multithread = true)
         {
-            if (!File.Exists(Setup.FFmpegExecutablesFolder + @"\ffmpeg.exe") && !File.Exists(Setup.FFmpegExecutablesFolder + @"\ffprobe.exe") && !File.Exists(Setup.FFmpegExecutablesFolder + @"\ffplay.exe"))
+            if (!File.Exists(Setup.FFmpegExecutablesFolder + @"\ffmpeg.exe") || !File.Exists(Setup.FFmpegExecutablesFolder + @"\ffprobe.exe") || !File.Exists(Setup.FFmpegExecutablesFolder + @"\ffplay.exe"))
                 Setup.DownloadFFmpeg();
 
             string fileType = ImagePaths[0].Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries).Last();
@@ -66,23 +82,13 @@ namespace StreetviewJourney
             var conv = preset
                 .SetFrameRate(framerate)
                 .SetOverwriteOutput(true)
-                .SetOutput(outputVideoPath)
+                .SetOutput(OutputVideoPath)
                 .AddParameter("-i \"" + Path + @"image%d." + fileType + "\"")
                 .AddParameter("-start_number 0")
                 .UseMultiThread(multithread);
 
             conv.Start().Wait();
-
-            OutputVideoPath = outputVideoPath;
         }
-
-        /// <summary>
-        /// Saves a video from the images in the ImageFolder to the default OutputVideoPath
-        /// </summary>
-        /// <param name="framerate">The desired framerate of the output video</param>
-        /// <param name="multithread">Whether to multithread the process</param>
-        public void SaveVideo(double framerate, bool multithread = true) =>
-            SaveVideo(framerate, Path + "output.mp4", multithread);
 
         /// <summary>
         /// Saves a video from the images in the ImageFolder using the default preset
@@ -90,8 +96,8 @@ namespace StreetviewJourney
         /// <param name="framerate">The desired framerate of the output video</param>
         /// <param name="outputVideoPath">The path including the file name and extension to the desired output video. e.g C:\dir\output.mp4</param>
         /// <param name="multithread">Whether to multithread the process</param>
-        public void SaveVideo(double framerate, string outputVideoPath, bool multithread = true) =>
-            SaveVideo(Conversion.New(), framerate, outputVideoPath, multithread);
+        public void SaveVideo(double framerate, bool multithread = true) =>
+            SaveVideo(Conversion.New(), framerate, multithread);
 
         /// <summary>
         /// Deletes all images from the ImageFolder
@@ -101,11 +107,6 @@ namespace StreetviewJourney
             foreach (string path in ImagePaths)
                 File.Delete(path);
         }
-
-        /// <summary>
-        /// The path of the outputted video
-        /// </summary>
-        public string OutputVideoPath;
 
         /// <summary>
         /// Deletes the output video
