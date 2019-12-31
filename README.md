@@ -15,7 +15,7 @@ Example usage:
 ```c#
 Route route = new Route(@"D:\routes\old.gpx");
 route = route.Interpolate(5).GetBearings().SmoothBearings();
-Console.WriteLine(rt.TotalDistance);
+Console.WriteLine(route.TotalDistance);
 route.Save(@"D:\routes\new.svj");
 ```
 
