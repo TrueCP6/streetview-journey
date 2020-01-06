@@ -203,11 +203,10 @@ namespace StreetviewJourney
         /// Gets a random point on Earth
         /// </summary>
         /// <returns>A new point</returns>
-        public static Point Random()
-        {
-            Random rng = new Random();
-            return new Point(0, rng.NextDouble() * 360 - 180).Destination(rng.NextDouble() * 10018750, new Bearing((rng.NextDouble() <= 0.5) ? 0 : 180));
-        }
+        public static Point Random() =>
+            new Point(0, rng.NextDouble() * 360 - 180).Destination(rng.NextDouble() * 10018750, new Bearing((rng.NextDouble() <= 0.5) ? 0 : 180));
+
+        private static Random rng = new Random();
 
         /// <summary>
         /// Gets the URL to the point's Streetview page

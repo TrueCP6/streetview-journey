@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using io = System.IO;
 using Xabe.FFmpeg;
 using System.Linq;
 
@@ -28,10 +29,8 @@ namespace StreetviewJourney
         public ImageFolder(string path, string outputVideoPath)
         {
             Path = path;
-            if (!Path.EndsWith(@"\"))
-                Path += @"\";
-            if (!Directory.Exists(Path.Remove(Path.Length - 1)))
-                Directory.CreateDirectory(Path.Remove(Path.Length - 1));
+            if (!Directory.Exists(Path))
+                Directory.CreateDirectory(Path);
 
             OutputVideoPath = outputVideoPath;
         }
@@ -43,15 +42,13 @@ namespace StreetviewJourney
         public ImageFolder(string path)
         {
             Path = path;
-            if (!Path.EndsWith(@"\"))
-                Path += @"\";
-            if (!Directory.Exists(Path.Remove(Path.Length - 1)))
-                Directory.CreateDirectory(Path.Remove(Path.Length - 1));
+            if (!Directory.Exists(Path))
+                Directory.CreateDirectory(Path);
 
-            OutputVideoPath = Path + "output.mp4";
+            OutputVideoPath = io.Path.Combine(Path, "output.mp4");
         }
 
-        public ImageFolder() : this(System.IO.Path.GetTempPath() + @"Streetview Journey Temporary Image Folder\") { }
+        public ImageFolder() : this(io.Path.Combine(io.Path.GetTempPath(), @"Streetview Journey Temporary Image Folder")) { }
 
         /// <summary>
         /// An array of paths for every file in the ImageFolder
@@ -63,7 +60,7 @@ namespace StreetviewJourney
         /// The paths to all the images contained
         /// </summary>
         public string[] ImagePaths =>
-            Files.Where(str => System.IO.Path.GetFileName(str).StartsWith("image")).ToArray();
+            Files.Where(str => io.Path.GetFileName(str).StartsWith("image")).ToArray();
 
         /// <summary>
         /// Saves a video from the images in the ImageFolder
@@ -74,16 +71,16 @@ namespace StreetviewJourney
         /// <param name="multithread">Whether to multithread the process</param>
         public void SaveVideo(IConversion preset, double framerate, bool multithread = true)
         {
-            if (!File.Exists(Setup.FFmpegExecutablesFolder + @"\ffmpeg.exe") || !File.Exists(Setup.FFmpegExecutablesFolder + @"\ffprobe.exe") || !File.Exists(Setup.FFmpegExecutablesFolder + @"\ffplay.exe"))
+            if (!Setup.FFmpegExists)
                 Setup.DownloadFFmpeg();
 
-            string fileType = ImagePaths[0].Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries).Last();
+            string fileType = io.Path.GetExtension(ImagePaths[0]);
 
             var conv = preset
                 .SetFrameRate(framerate)
                 .SetOverwriteOutput(true)
                 .SetOutput(OutputVideoPath)
-                .AddParameter("-i \"" + Path + @"image%d." + fileType + "\"")
+                .AddParameter("-i \"" + io.Path.Combine(Path, @"image%d" + fileType) + "\"")
                 .AddParameter("-start_number 0")
                 .UseMultiThread(multithread);
 
@@ -129,7 +126,7 @@ namespace StreetviewJourney
         {
             DeleteVideo();
             DeleteFiles();
-            Directory.Delete(System.IO.Path.GetDirectoryName(Path + "virus.exe"));
+            Directory.Delete(Path);
         }
     }
 }

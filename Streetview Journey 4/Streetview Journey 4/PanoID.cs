@@ -180,7 +180,6 @@ namespace StreetviewJourney
         /// <returns>A random PanoID</returns>
         public static PanoID RandomUsable(bool firstParty = false)
         {
-            Random rng = new Random();
             bool success = false;
             PanoID id = new PanoID();
             while (!success)

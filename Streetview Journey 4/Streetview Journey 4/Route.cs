@@ -97,9 +97,9 @@ namespace StreetviewJourney
         /// <returns>A Route created from a gpx or svj file</returns>
         public static Route FromFile(string path)
         {
-            if (path.EndsWith(".gpx"))
+            if (Path.GetExtension(path) == ".gpx")
                 return FromGPX(path);
-            else if (path.EndsWith(".svj"))
+            else if (Path.GetExtension(path) == ".svj")
                 return FromSVJ(path);
             else
                 throw new FileLoadException("Unrecognised file type. Use a .gpx or .svj file instead.");
@@ -218,10 +218,7 @@ namespace StreetviewJourney
         /// <summary>
         /// The amount of points the Route contains
         /// </summary>
-        public int Length
-        {
-            get => Points.Length;
-        }
+        public int Length => Points.Length;
 
         /// <summary>
         /// Smoothes out the bearings of a Route according to an int value
@@ -456,14 +453,14 @@ namespace StreetviewJourney
             {
                 Parallel.For(0, ids.Length, i => {
                     using (Bitmap pano = ids[i].DownloadPanorama(res))
-                        pano.Save(folder.Path + "image" + i + "." + format.ToString().ToLower(), frmt);
+                        pano.Save(Path.Combine(folder.Path, "image" + i + "." + format.ToString().ToLower()), frmt);
                 });
             }
             else
             {
                 for (int i = 0; i < ids.Length; i++)
                     using (Bitmap pano = ids[i].DownloadPanorama(res))
-                        pano.Save(folder.Path + "image" + i + "." + format.ToString().ToLower(), frmt);
+                        pano.Save(Path.Combine(folder.Path, "image" + i + "." + format.ToString().ToLower()), frmt);
             }
 
             return folder;
@@ -487,14 +484,14 @@ namespace StreetviewJourney
             {
                 Parallel.For(0, Length, i=> {
                     using (WebClient client = new WebClient())
-                        client.DownloadFile(Points[i].ImageURL(pitch, res, fov), folder.Path + "image" + i + ".png");
+                        client.DownloadFile(Points[i].ImageURL(pitch, res, fov), Path.Combine(folder.Path, "image" + i + ".png"));
                 });
             }
             else
             {
                 for (int i = 0; i < Length; i++)
                     using (WebClient client = new WebClient())
-                        client.DownloadFile(Points[i].ImageURL(pitch, res, fov), folder.Path + "image" + i + ".png");
+                        client.DownloadFile(Points[i].ImageURL(pitch, res, fov), Path.Combine(folder.Path, "image" + i + ".png"));
             }
             return folder;
         }
@@ -549,7 +546,7 @@ namespace StreetviewJourney
                         "watermark watermark-imagery"
                     });
 
-                    drivers[a].GetScreenshot().SaveAsFile(folder.Path+"image"+b+"."+format.ToString().ToLower(), (ScreenshotImageFormat)format);
+                    drivers[a].GetScreenshot().SaveAsFile(Path.Combine(folder.Path, "image"+b+"."+format.ToString().ToLower()), (ScreenshotImageFormat)format);
                 }
 
                 drivers[a].Quit();
@@ -610,5 +607,11 @@ namespace StreetviewJourney
             });
             return new Route(RemoveUnusablePoints(pts));
         }
+
+        /// <summary>
+        /// The bearings of each point in the route
+        /// </summary>
+        public Bearing[] Bearings =>
+            Points.Select(pt => pt.Bearing).ToArray();
     }
 }

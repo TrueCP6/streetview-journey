@@ -73,9 +73,7 @@ namespace StreetviewJourney
             int LogicalScreenHeight = GetDeviceCaps(desktop, (int)DeviceCap.VERTRES);
             int PhysicalScreenHeight = GetDeviceCaps(desktop, (int)DeviceCap.DESKTOPVERTRES);
 
-            double ScreenScalingFactor = (double)PhysicalScreenHeight / (double)LogicalScreenHeight;
-
-            return ScreenScalingFactor;
+            return (double)PhysicalScreenHeight / (double)LogicalScreenHeight;
         }
     }
 }

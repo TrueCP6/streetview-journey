@@ -16,7 +16,7 @@ namespace StreetviewJourney
         static Setup()
         {
             ServicePointManager.DefaultConnectionLimit = Environment.ProcessorCount * 12; //stops timeout exceptions
-            FFmpegExecutablesFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\ffmpeg"; //workaround to initialize FFmpegExecutablesFolder
+            FFmpegExecutablesFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "ffmpeg"); //workaround to initialize FFmpegExecutablesFolder
         }
 
         /// <summary>
@@ -97,7 +97,13 @@ namespace StreetviewJourney
                 archive.ExtractToDirectory(Path.GetDirectoryName(GeckodriverPath));
 
             //update path
-            GeckodriverPath = Path.GetDirectoryName(GeckodriverPath) + @"\geckodriver.exe";
+            GeckodriverPath = Path.Combine(Path.GetDirectoryName(GeckodriverPath), "geckodriver.exe");
         }
+
+        /// <summary>
+        /// Whether all the FFmpeg executables exist in their set location
+        /// </summary>
+        public static bool FFmpegExists =>
+            File.Exists(Path.Combine(FFmpegExecutablesFolder, "ffmpeg.exe")) && File.Exists(Path.Combine(FFmpegExecutablesFolder, "ffprobe.exe")) && File.Exists(Path.Combine(FFmpegExecutablesFolder, "ffplay.exe"));
     }
 }
