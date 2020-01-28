@@ -271,6 +271,7 @@ namespace StreetviewJourney
         /// <summary>
         /// Whether the point is third party
         /// </summary>
+        [JsonIgnore]
         public bool isThirdParty =>
             PanoID(searchRadius: 1).isThirdParty;
 

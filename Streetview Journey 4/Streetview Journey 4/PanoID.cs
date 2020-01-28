@@ -36,6 +36,7 @@ namespace StreetviewJourney
         /// <summary>
         /// Whether the panorama was uploaded by a third party user
         /// </summary>
+        [JsonIgnore]
         public bool isThirdParty =>
             ID.Length == 64;
 
@@ -45,6 +46,7 @@ namespace StreetviewJourney
         /// <summary>
         /// The position of the panorama
         /// </summary>
+        [JsonIgnore]
         public Point Position
         {
             get
@@ -61,6 +63,7 @@ namespace StreetviewJourney
         /// <summary>
         /// Whether the panorama is valid
         /// </summary>
+        [JsonIgnore]
         public bool IsUsable
         {
             get
@@ -206,12 +209,14 @@ namespace StreetviewJourney
         /// <summary>
         /// Gets the URL to the panorama's metadata
         /// </summary>
+        [JsonIgnore]
         public string MetadataURL =>
             URL.Sign("https://maps.googleapis.com/maps/api/streetview/metadata?pano=" + ID);
 
         /// <summary>
         /// The json metadata of the panorama as a string
         /// </summary>
+        [JsonIgnore]
         public string JsonMetadata
         {
             get

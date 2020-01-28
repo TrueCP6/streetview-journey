@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace StreetviewJourney
 {
-    public sealed class Display //yoinked from stackoverflow and modified
+    public class Display //yoinked from stackoverflow and modified
     {
         Display() { }
 

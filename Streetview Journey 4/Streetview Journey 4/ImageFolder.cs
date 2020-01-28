@@ -3,6 +3,7 @@ using System.IO;
 using io = System.IO;
 using Xabe.FFmpeg;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace StreetviewJourney
 {
@@ -53,12 +54,14 @@ namespace StreetviewJourney
         /// <summary>
         /// An array of paths for every file in the ImageFolder
         /// </summary>
+        [JsonIgnore]
         public string[] Files =>
             Directory.GetFiles(Path);
 
         /// <summary>
         /// The paths to all the images contained
         /// </summary>
+        [JsonIgnore]
         public string[] ImagePaths =>
             Files.Where(str => io.Path.GetFileName(str).StartsWith("image")).ToArray();
 

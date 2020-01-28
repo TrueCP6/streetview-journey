@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium;
+﻿using Newtonsoft.Json;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using System;
 using System.Collections.Generic;
@@ -183,6 +184,7 @@ namespace StreetviewJourney
         /// <summary>
         /// The total distance in meters the length of the Route covers
         /// </summary>
+        [JsonIgnore]
         public double TotalDistance
         {
             get
@@ -197,6 +199,7 @@ namespace StreetviewJourney
         /// <summary>
         /// The average distance in meters between each point
         /// </summary>
+        [JsonIgnore]
         public double AverageDistance =>
             TotalDistance / Points.Length;
 
@@ -218,6 +221,7 @@ namespace StreetviewJourney
         /// <summary>
         /// The amount of points the Route contains
         /// </summary>
+        [JsonIgnore]
         public int Length => Points.Length;
 
         /// <summary>
@@ -611,6 +615,7 @@ namespace StreetviewJourney
         /// <summary>
         /// The bearings of each point in the route
         /// </summary>
+        [JsonIgnore]
         public Bearing[] Bearings =>
             Points.Select(pt => pt.Bearing).ToArray();
     }
