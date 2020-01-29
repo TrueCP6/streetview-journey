@@ -92,18 +92,27 @@ namespace StreetviewJourney
         }
 
         /// <summary>
+        /// Creates a Route from a svjson file
+        /// </summary>
+        /// <param name="path">The path to the .svjson file</param>
+        /// <returns>A Route create from a .svjson file</returns>
+        public static Route FromSVJSON(string path) =>
+            JsonConvert.DeserializeObject<Route>(File.ReadAllText(path));
+
+        /// <summary>
         /// Creates a Route from a gpx or svj file
         /// </summary>
         /// <param name="path">The file path</param>
         /// <returns>A Route created from a gpx or svj file</returns>
         public static Route FromFile(string path)
         {
-            if (Path.GetExtension(path) == ".gpx")
-                return FromGPX(path);
-            else if (Path.GetExtension(path) == ".svj")
-                return FromSVJ(path);
-            else
-                throw new FileLoadException("Unrecognised file type. Use a .gpx or .svj file instead.");
+            switch (Path.GetExtension(path))
+            {
+                case ".gpx": return FromGPX(path);
+                case ".svj": return FromSVJ(path);
+                case ".svjson": return FromSVJSON(path);
+                default: throw new FileLoadException("Unrecognised file extension. Use a .gpx, .svj or .svjson file instead.");
+            }
         }
 
         /// <summary>
@@ -204,18 +213,12 @@ namespace StreetviewJourney
             TotalDistance / Points.Length;
 
         /// <summary>
-        /// Saves the Route's points to an svj file 
+        /// Saves the Route's points to a .svjson file 
         /// </summary>
-        /// <param name="filePath">The path of the svj file to save as</param>
+        /// <param name="filePath">The path of the .svjson file to save as</param>
         public void Save(string filePath)
         {
-            List<string> str = new List<string>();
-            foreach (Point pt in Points)
-            {
-                str.Add(pt.Latitude.ToString());
-                str.Add(pt.Longitude.ToString());
-            }
-            File.WriteAllLines(filePath, str.ToArray());
+            File.WriteAllText(filePath, JsonConvert.SerializeObject(this, Formatting.Indented));
         }
 
         /// <summary>
