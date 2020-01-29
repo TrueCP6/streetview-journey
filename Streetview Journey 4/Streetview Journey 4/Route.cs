@@ -28,7 +28,7 @@ namespace StreetviewJourney
         /// <summary>
         /// Creates a new Route object from a file path
         /// </summary>
-        /// <param name="filePath">The path of the gpx or svj file</param>
+        /// <param name="filePath">The path of the gpx, svj or svjson file</param>
         public Route(string filePath)
         {
             Points = FromFile(filePath).Points;
@@ -100,10 +100,10 @@ namespace StreetviewJourney
             JsonConvert.DeserializeObject<Route>(File.ReadAllText(path));
 
         /// <summary>
-        /// Creates a Route from a gpx or svj file
+        /// Creates a Route from a gpx, svj or svjson file
         /// </summary>
         /// <param name="path">The file path</param>
-        /// <returns>A Route created from a gpx or svj file</returns>
+        /// <returns>A Route created from a gpx, svj or svjson file</returns>
         public static Route FromFile(string path)
         {
             switch (Path.GetExtension(path))
