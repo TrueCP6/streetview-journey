@@ -213,8 +213,8 @@ namespace StreetviewJourney
         /// </summary>
         /// <param name="pitch">The starting pitch</param>
         /// <returns>The URL to the page</returns>
-        public string StreetviewURL(double pitch) => 
-            "http://maps.google.com/maps?q=&layer=c&cbll=" + Latitude + "," + Longitude + "&cbp=11," + Bearing + ",0,0," + pitch;
+        public string StreetviewURL(double pitch) =>
+            string.Format("https://www.google.com/maps?q&layer=c&cbll={0},{1}&cbp=11,{2},0,0,{3}", Latitude, Longitude, Bearing, pitch);
 
         /// <summary>
         /// The Streetview static API image URL

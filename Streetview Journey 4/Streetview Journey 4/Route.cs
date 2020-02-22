@@ -543,15 +543,7 @@ namespace StreetviewJourney
 
                     Wait(drivers[a]);
 
-                    RemoveElementsByClassName(drivers[a], new string[] {
-                        "widget-titlecard widget-titlecard-show-spotlight-link widget-titlecard-show-settings-menu",
-                        "widget-image-header",
-                        "scene-footer-container noprint",
-                        "widget-minimap",
-                        "app-vertical-widget-holder noprint",
-                        "app-horizontal-widget-holder noprint",
-                        "watermark watermark-imagery"
-                    });
+                    RemoveElementsByClassName(drivers[a], ElementsToRemove);
 
                     drivers[a].GetScreenshot().SaveAsFile(Path.Combine(folder.Path, "image"+b+"."+format.ToString().ToLower()), (ScreenshotImageFormat)format);
                 }
@@ -561,6 +553,17 @@ namespace StreetviewJourney
 
             return folder;
         }
+
+        private readonly string[] ElementsToRemove = new string[]
+        {
+            "widget-titlecard widget-titlecard-show-spotlight-link widget-titlecard-show-settings-menu",
+            "widget-image-header",
+            "scene-footer-container noprint",
+            "widget-minimap",
+            "app-vertical-widget-holder noprint",
+            "app-horizontal-widget-holder noprint",
+            "watermark watermark-imagery"
+        };
 
         private static void RemoveElementsByClassName(FirefoxDriver driver, string[] elements)
         {

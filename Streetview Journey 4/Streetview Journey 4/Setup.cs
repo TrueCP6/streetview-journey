@@ -25,7 +25,7 @@ namespace StreetviewJourney
         /// <param name="dontBillMe">If true all methods that get billed by Google will throw an exception</param>
         /// <param name="apiKey">Your Static Streetview API Key</param>
         /// <param name="urlSigningSecret">Your Static Streetview API URL Signing Secret</param>
-        public static void SetStaticStreetviewAPIInfo(bool dontBillMe, string apiKey, string urlSigningSecret)
+        public static void SetStaticStreetviewAPIInfo(string apiKey, string urlSigningSecret, bool dontBillMe = true)
         {
             DontBillMe = dontBillMe;
             APIKey = apiKey;
@@ -35,7 +35,7 @@ namespace StreetviewJourney
         /// <summary>
         /// If true all methods that get billed by Google will throw an exception
         /// </summary>
-        public static bool DontBillMe;
+        public static bool DontBillMe = true;
 
         /// <summary>
         /// Your Static Streetview API Key
