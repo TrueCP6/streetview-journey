@@ -8,14 +8,14 @@ A library for modifying and using point, panorama and route data for Google Stre
 # Usage
 
 ## Routes
-`Route`s can be created from [.gpx](https://mapstogpx.com/) or [.svj](https://github.com/TrueCP6/streetview-journey/tree/master/Example%20SVJs) files, `Point` arrays or `PanoID` arrays.
+`Route`s can be created from [.gpx](https://mapstogpx.com/) or [.svjson](https://github.com/TrueCP6/streetview-journey/tree/master/Example%20SVJs) files, `Point` arrays or `PanoID` arrays.
 `Route`s can be modified with various methods this library contains.
 `Route`s can be downloaded as `ImageFolder` image sequences.
 Example usage:
 ```c#
 Route route = new Route(@"D:\routes\old.gpx");
 route = route.Interpolate(5).GetBearings().SmoothBearings();
-Console.WriteLine(route.TotalDistance);
+Console.WriteLine(route.TotalDistance + " metres");
 route.Save(@"D:\routes\new.svj");
 ```
 
