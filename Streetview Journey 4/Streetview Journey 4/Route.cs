@@ -148,7 +148,7 @@ namespace StreetviewJourney
         /// <param name="firstParty">Whether each point must be first party</param>
         /// <param name="searchRadius">The radius in metres to search</param>
         /// <returns>A new Route</returns>
-        public Route Exact(bool firstParty = false, int searchRadius = 50)
+        public Route Exact(bool firstParty = false, uint searchRadius = Point.DefaultSearchRadius)
         {
             Point[] pts = Points;
             Parallel.For(0, pts.Length, i =>
@@ -180,7 +180,6 @@ namespace StreetviewJourney
         /// Trims the points to a new length
         /// </summary>
         /// <param name="trimTo">The new length</param>
-        /// <returns></returns>
         public Route Trim(int trimTo)
         {
             Point[] trimmed = new Point[trimTo];
@@ -194,23 +193,15 @@ namespace StreetviewJourney
         /// The total distance in meters the length of the Route covers
         /// </summary>
         [JsonIgnore]
-        public double TotalDistance
-        {
-            get
-            {
-                double dist = 0;
-                for (int i = 0; i < Points.Length - 1; i++)
-                    dist += Points[i].DistanceTo(Points[i + 1]);
-                return dist;
-            }
-        }
+        public double TotalDistance =>
+            Distances.Sum();
 
         /// <summary>
         /// The average distance in meters between each point
         /// </summary>
         [JsonIgnore]
         public double AverageDistance =>
-            TotalDistance / Points.Length;
+            TotalDistance / (Length - 1);
 
         /// <summary>
         /// Saves the Route's points to a .svjson file 
@@ -301,7 +292,7 @@ namespace StreetviewJourney
         /// <param name="searchRadius">The radius to search in meters for each point</param>
         /// <param name="firstParty">Whether each point must be first party</param>
         /// <returns>A new Route</returns>
-        public bool AllUsable(bool firstParty = false, int searchRadius = 50)
+        public bool AllUsable(bool firstParty = false, uint searchRadius = Point.DefaultSearchRadius)
         {
             bool usable = true;
             Parallel.ForEach(Points, (pt, state) => {
@@ -321,20 +312,21 @@ namespace StreetviewJourney
         /// <param name="firstParty">Whether each point must be third party</param>
         /// <param name="searchRadius">The radius in metres to search for each point</param>
         /// <returns>A new Route</returns>
-        public Route Interpolate(double desiredMperPoint, bool firstParty = false, int searchRadius = 50) =>
-            new Route(InterpolateArray(Exact(firstParty, searchRadius).Points, searchRadius, desiredMperPoint, firstParty));
+        public Route Interpolate(double desiredMperPoint, bool firstParty = false, uint searchRadius = Point.DefaultSearchRadius) =>
+            new Route(InterpolateArray(Exact(firstParty, searchRadius).Points, desiredMperPoint, firstParty));
 
-        private static Point[] InterpolateArray(Point[] arr, int searchRadius, double mpp, bool firstParty)
+        private static Point[] InterpolateArray(Point[] arr, double mpp, bool firstParty)
         {
             Point[][] jPts = new Point[arr.Length][];
             Parallel.For(0, jPts.Length - 1, a =>
             {
-                if (arr[a].DistanceTo(arr[a + 1]) > mpp) //if the desired distance per point has been reached
+                double dist = arr[a].DistanceTo(arr[a + 1]);
+                if (dist > mpp) //if the desired distance per point has been reached
                 {
                     Point exactMid = new Point(); //this 0, 0 point wont be used (only to stop an error)
                     try
                     {
-                        exactMid = arr[a].Midpoint(arr[a + 1]).Exact(firstParty, searchRadius);
+                        exactMid = arr[a].Midpoint(arr[a + 1]).Exact(firstParty, (uint)Math.Ceiling(dist / 2));
                     }
                     catch (ZeroResultsException) //if there are no panoramas found between in the search radius
                     {
@@ -348,7 +340,7 @@ namespace StreetviewJourney
                         return;
                     }
 
-                    jPts[a] = InterpolateArray(new Point[] { arr[a], exactMid, arr[a + 1] }, searchRadius, mpp, firstParty);
+                    jPts[a] = InterpolateArray(new Point[] { arr[a], exactMid, arr[a + 1] }, mpp, firstParty);
                 }
                 else
                     jPts[a] = new Point[] { arr[a], arr[a + 1] };
@@ -405,7 +397,7 @@ namespace StreetviewJourney
         /// <param name="firstParty">Whether the PanoIDs must be first party</param>
         /// <param name="searchRadius">The radius in meters to search for each point</param>
         /// <returns>A new Route</returns>
-        public PanoID[] PanoIDs(bool firstParty = false, int searchRadius = 50)
+        public PanoID[] PanoIDs(bool firstParty = false, uint searchRadius = Point.DefaultSearchRadius)
         {
             PanoID[] ids = new PanoID[Length];
             Parallel.For(0, Length, i => {
@@ -418,7 +410,7 @@ namespace StreetviewJourney
                     ids[i] = new PanoID();
                 }
             });
-            return ids.Where(id => id.ID != null).ToArray();
+            return ids.Where(id => !string.IsNullOrEmpty(id.ID)).ToArray();
         }
 
         /// <summary>
@@ -448,27 +440,23 @@ namespace StreetviewJourney
         /// <param name="folder">The ImageFolder where the images should be saved to</param>
         /// <param name="format">The image format to save the images as</param>
         /// <param name="res">The resolution to save the images as with an aspect ratio of 2:1</param>
-        /// <param name="searchRadius">The radius in meters to search for each poin</param>
-        /// <param name="parallel">Whether to run in parallel. Setting this as true will use significantly more memory but take less time to complete</param>
+        /// <param name="searchRadius">The radius in meters to search for each point</param>
+        /// <param name="threads">The amount of threads to download images in parallel. Each instance uses about 1GB of RAM.</param>
         /// <returns>The ImageFolder containing all the saved images</returns>
-        public ImageFolder DownloadAllPanoramas(ImageFolder folder, ImageFileFormat format, Resolution res, int searchRadius = 50, bool parallel = true)
+        public ImageFolder DownloadAllPanoramas(ImageFolder folder, ImageFileFormat format, Resolution res, int instances = 1, uint searchRadius = Point.DefaultSearchRadius)
         {
+            if (instances < 1)
+                throw new ArgumentOutOfRangeException("threads", "Must be 1 or greater.");
+
             PanoID[] ids = PanoIDs(true, searchRadius);
             ImageFormat frmt = GetFormat(format);
 
-            if (parallel)
+            Parallel.For(0, instances, thread =>
             {
-                Parallel.For(0, ids.Length, i => {
+                for (int i = thread; i < ids.Length; i += instances)
                     using (Bitmap pano = ids[i].DownloadPanorama(res))
                         pano.Save(Path.Combine(folder.Path, "image" + i + "." + format.ToString().ToLower()), frmt);
-                });
-            }
-            else
-            {
-                for (int i = 0; i < ids.Length; i++)
-                    using (Bitmap pano = ids[i].DownloadPanorama(res))
-                        pano.Save(Path.Combine(folder.Path, "image" + i + "." + format.ToString().ToLower()), frmt);
-            }
+            });
 
             return folder;
         }
@@ -554,7 +542,7 @@ namespace StreetviewJourney
             return folder;
         }
 
-        private readonly string[] ElementsToRemove = new string[]
+        private static readonly string[] ElementsToRemove = new string[]
         {
             "widget-titlecard widget-titlecard-show-spotlight-link widget-titlecard-show-settings-menu",
             "widget-image-header",
@@ -624,5 +612,21 @@ namespace StreetviewJourney
         [JsonIgnore]
         public Bearing[] Bearings =>
             Points.Select(pt => pt.Bearing).ToArray();
+
+        /// <summary>
+        /// The distance between each point in a route. Has a length of route length -1
+        /// </summary>
+        [JsonIgnore]
+        public double[] Distances
+        {
+            get
+            {
+                double[] dists = new double[Length - 1];
+                for (int i = 0; i < dists.Length; i++)
+                    dists[i] = Points[i].DistanceTo(Points[i + 1]);
+                return dists;
+            }
+        }
+
     }
 }

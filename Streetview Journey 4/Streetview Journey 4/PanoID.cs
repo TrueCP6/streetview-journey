@@ -86,7 +86,7 @@ namespace StreetviewJourney
         {
             if (isThirdParty)
                 throw new ThirdPartyPanoramaException("This method can only be used with first party panoramas.");
-            return "http://maps.google.com/cbk?output=thumbnail&w=" + res.Width + "&h=" + res.Height + "&panoid=" + ID;
+            return string.Format("http://maps.google.com/cbk?output=thumbnail&w={0}&h={1}&panoid={2}", res.Width, res.Height, ID);
         }
 
         /// <summary>
@@ -103,10 +103,10 @@ namespace StreetviewJourney
             if (x < 0 || x > 25)
                 throw new ArgumentOutOfRangeException("x", "Must be from 0 to 25");
             if (y < 0 || y > 12)
-                throw new ArgumentOutOfRangeException("y", "Must be from 0 to 13");
+                throw new ArgumentOutOfRangeException("y", "Must be from 0 to 12");
             if (zoomLevel < 0 || zoomLevel > 5)
                 throw new ArgumentOutOfRangeException("zoomLevel", "Must be from 0 to 5");
-            return "http://maps.google.com/cbk?output=tile&panoid=" + ID + "&zoom=" + zoomLevel + "&x=" + x + "&y=" + y;
+            return string.Format("http://maps.google.com/cbk?output=tile&panoid={0}&zoom={1}&x={2}&y={3}", ID, zoomLevel, x, y);
         }
 
         /// <summary>
@@ -150,6 +150,9 @@ namespace StreetviewJourney
         /// <returns>An equirectangular bitmap image of the panorama</returns>
         public Bitmap DownloadPanorama(Resolution res)
         {
+            if (res.Width == Resolution.DefaultPanoramaResolution.Width && res.Height == Resolution.DefaultPanoramaResolution.Height)
+                return DownloadPanorama();
+
             var destRect = new Rectangle(0, 0, res.Width, res.Height);
             var destImage = new Bitmap(res.Width, res.Height);
 
@@ -237,6 +240,6 @@ namespace StreetviewJourney
         /// <param name="fov">The field of view of the image</param>
         /// <returns>The Streetview Static API image URL</returns>
         public string ImageURL(Bearing bearing, double pitch, Resolution res, int fov) =>
-            URL.Sign("https://maps.googleapis.com/maps/api/streetview?size=" + res.Width + "x" + res.Height + "&pano="+ ID + "&heading=" + bearing + "&pitch=" + pitch + "&fov=" + fov);
+            URL.Sign(string.Join("https://maps.googleapis.com/maps/api/streetview?size={0}x{1}&pano={2}&heading={3}&pitch={4}&fov={5}", res.Width, res.Height, ID, bearing, pitch, fov));
     }
 }

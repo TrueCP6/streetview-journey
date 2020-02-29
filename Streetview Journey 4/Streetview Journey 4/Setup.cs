@@ -59,7 +59,7 @@ namespace StreetviewJourney
         /// <summary>
         /// The path to geckodriver.exe
         /// </summary>
-        public static string GeckodriverPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"\geckodriver.exe";
+        public static string GeckodriverPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "geckodriver.exe");
 
         /// <summary>
         /// Downloads the latest version of FFmpeg to your FFmpegExecutablesFolder

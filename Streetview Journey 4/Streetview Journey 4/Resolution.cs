@@ -35,6 +35,6 @@ namespace StreetviewJourney
         /// <summary>
         /// The default resolution of an equirectangular panorama image
         /// </summary>
-        public static Resolution DefaultPanoramaResolution { get; } = new Resolution(26 * 512, 13 * 512);
+        public static readonly Resolution DefaultPanoramaResolution = new Resolution(26 * 512, 13 * 512);
     }
 }

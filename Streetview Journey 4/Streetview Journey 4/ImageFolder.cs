@@ -49,7 +49,7 @@ namespace StreetviewJourney
             OutputVideoPath = io.Path.Combine(Path, "output.mp4");
         }
 
-        public ImageFolder() : this(io.Path.Combine(io.Path.GetTempPath(), @"Streetview Journey Temporary Image Folder")) { }
+        public ImageFolder() : this(io.Path.Combine(io.Path.GetTempPath(), "Streetview Journey Temporary Image Folder")) { }
 
         /// <summary>
         /// An array of paths for every file in the ImageFolder

@@ -1,8 +1,5 @@
-﻿using OpenQA.Selenium;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Drawing.Imaging;
-using System.Text;
 
 namespace StreetviewJourney
 {
@@ -18,10 +15,10 @@ namespace StreetviewJourney
         }
 
         /// <summary>
-        /// Gets the System.Drawing.Common equivalent ImageFormat
+        /// Gets the System.Drawing.Imaging equivalent ImageFormat
         /// </summary>
         /// <param name="format">The format to convert</param>
-        /// <returns>The System.Drawing.Common equivalent ImageFormat</returns>
+        /// <returns>The System.Drawing.Imaging equivalent ImageFormat</returns>
         public static ImageFormat GetFormat(ImageFileFormat format)
         {
             if (format == ImageFileFormat.Jpeg)
