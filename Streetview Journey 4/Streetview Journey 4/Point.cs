@@ -283,7 +283,7 @@ namespace StreetviewJourney
         /// <returns>The URL of the metadata</returns>
         public string MetadataURL(bool firstParty = false, uint searchRadius = DefaultSearchRadius)
         {
-            string url = string.Join("https://maps.googleapis.com/maps/api/streetview/metadata?location={0},{1}&radius={2}", Latitude, Longitude, searchRadius);
+            string url = string.Format("https://maps.googleapis.com/maps/api/streetview/metadata?location={0},{1}&radius={2}", Latitude, Longitude, searchRadius);
             if (firstParty)
                 url += "&source=outdoor";
             return URL.Sign(url);

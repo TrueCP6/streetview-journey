@@ -240,6 +240,6 @@ namespace StreetviewJourney
         /// <param name="fov">The field of view of the image</param>
         /// <returns>The Streetview Static API image URL</returns>
         public string ImageURL(Bearing bearing, double pitch, Resolution res, int fov) =>
-            URL.Sign(string.Join("https://maps.googleapis.com/maps/api/streetview?size={0}x{1}&pano={2}&heading={3}&pitch={4}&fov={5}", res.Width, res.Height, ID, bearing, pitch, fov));
+            URL.Sign(string.Format("https://maps.googleapis.com/maps/api/streetview?size={0}x{1}&pano={2}&heading={3}&pitch={4}&fov={5}", res.Width, res.Height, ID, bearing, pitch, fov));
     }
 }
